@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -74,30 +75,38 @@ public class CustomHistoryAdapter extends BaseAdapter {
         ImageButton shareButton = (ImageButton) view.findViewById(R.id.share);
         LinearLayout layout = (LinearLayout) view.findViewById(R.id.rowLayout);
 
-/*        if(position%2==1){
-            layout.setBackgroundColor(Color.parseColor("#F8F8F8"));
-        }*/
-        if (msg.equals("")) {
-            messageText.setVisibility(View.GONE);
-        } else {
-            messageText.setText(HistoryFragment.historyItems.get(position).message);
-        }
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Message at:" + HistoryFragment.historyItems.get(position).dateTime + ". Type: " + HistoryFragment.historyItems.get(position).type);
+
+
         dateTimeText.setText(HistoryFragment.historyItems.get(position).dateTime);
-        if (HistoryFragment.historyItems.get(position).type.equals("file")) {
-            messageText.setText(HistoryFragment.historyItems.get(position).message + "\nFile transfer: " +
-                    HistoryFragment.historyItems.get(position).fileName);
-            copyButton.setVisibility(View.GONE);
-        } else if (HistoryFragment.historyItems.get(position).type.equals("image")) {
-            if (HistoryFragment.historyItems.get(position).bitmap == null) {
-                messageText.setText(HistoryFragment.historyItems.get(position).message + "\nImage transfer: " +
-                        HistoryFragment.historyItems.get(position).fileName +
-                        "\n Image not available on device. Tap to download.");
-            }
-            imageView.getLayoutParams().height = 300;
-            copyButton.setVisibility(View.GONE);
-        } else {
+
+        if(HistoryFragment.historyItems.get(position).type.equals("text")){
+            messageText.setText(HistoryFragment.historyItems.get(position).message);
             openButton.setVisibility(View.GONE);
         }
+        else{
+            if (HistoryFragment.historyItems.get(position).type.equals("file")) {
+                messageText.setText("File transfer: " + HistoryFragment.historyItems.get(position).fileName );
+            } else if (HistoryFragment.historyItems.get(position).type.equals("image")) {
+                if (HistoryFragment.historyItems.get(position).bitmap == null) {
+                    messageText.setText("Image transfer: " + HistoryFragment.historyItems.get(position).fileName +"\nImage not available on device. Tap to download.");
+                }
+                imageView.getLayoutParams().height = 300;//doesnt work
+
+            }
+            if(!HistoryFragment.historyItems.get(position).message.equals("")){//attaches message to file or image transfer if a message exist
+                messageText.setText(messageText.getText().toString()+ "\n"+ HistoryFragment.historyItems.get(position).message)   ;
+            }
+            if(messageText.getText().toString().indexOf("\n")==0){//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
+               messageText.setText(messageText.getText().toString().substring(2));
+            }
+            copyButton.setVisibility(View.GONE);
+        }
+
+        if (messageText.getText().toString().equals("")){
+            messageText.setVisibility(View.GONE);
+        }
+
         imageView.setImageBitmap(HistoryFragment.historyItems.get(position).bitmap);
         copyButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -81,7 +81,7 @@ public class HistoryFragment extends Fragment {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
                     nameValuePairs.add(new BasicNameValuePair("email", email));
-                    Log.d(MyActivity.TAG, String.valueOf(totalLoad));
+
                     nameValuePairs.add(new BasicNameValuePair("total", String.valueOf(totalLoad)));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
@@ -95,6 +95,7 @@ public class HistoryFragment extends Fragment {
                     try {
                         JSONArray result = new JSONArray(line);
                         historyItems.clear();
+                        Log.i(MyActivity.TAG,getClass().getName()+": "+ "Received history. Total messages: "+ result.length());
                         for (int i = 0; i < result.length(); i++) {
                             JSONObject item = result.getJSONObject(i);
                             historyItems.add(new HistoryItem(

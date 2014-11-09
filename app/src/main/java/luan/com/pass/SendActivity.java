@@ -189,8 +189,9 @@ public class SendActivity extends Activity {
             for (int i = 0; i < devices.length(); i++) {
                 JSONObject device = devices.getJSONObject(i);
                 deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
-                customDeviceAdapter.updateEntries(deviceItems);
             }
+            deviceItems.add(0,new DeviceItem("cloud", "cloud", "cloud"));
+            customDeviceAdapter.updateEntries(deviceItems);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -398,7 +399,7 @@ public class SendActivity extends Activity {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
                         nameValuePairs.add(new BasicNameValuePair("email", email));
-                        nameValuePairs.add(new BasicNameValuePair("fileName", file.getName()));
+                        nameValuePairs.add(new BasicNameValuePair("fileName", s));
                         nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
                         nameValuePairs.add(new BasicNameValuePair("message", "android send test"));
                         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));

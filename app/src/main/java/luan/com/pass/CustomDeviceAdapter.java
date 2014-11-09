@@ -58,12 +58,17 @@ public class CustomDeviceAdapter extends BaseAdapter {
             TextView textView = (TextView) gridView
                     .findViewById(R.id.textView);
             textView.setText(deviceItems.get(position).name);
+            if(deviceItems.get(position).name.equals("")){
+                textView.setText(deviceItems.get(position).type);
+            }
             ImageView imageView = (ImageView) gridView
                     .findViewById(R.id.imageView);
             if (deviceItems.get(position).type.equals("chrome")) {
-                imageView.setImageResource(R.drawable.computericon);
-            } else {
-                imageView.setImageResource(R.drawable.phoneicon);
+                imageView.setImageResource(R.drawable.computer_black);
+            } else if (deviceItems.get(position).type.equals("android")) {
+                imageView.setImageResource(R.drawable.phone_black);
+            }else{
+                imageView.setImageResource(R.drawable.cloud_black);
             }
         } else {
             gridView = (View) convertView;

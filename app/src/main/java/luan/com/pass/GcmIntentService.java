@@ -28,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -211,8 +212,11 @@ public class GcmIntentService extends IntentService {
         @Override
         public void callBack(String fileName, String msg, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder) {
             String mimeType = MyActivity.getMimeType(fileName);
-            Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
-                    Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
+            String path = "file://" + Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS) + "/" + fileName;
+            Uri hacked_uri = Uri.parse(path);
+
+            MediaScannerConnection.scanFile(context, new String[]{path}, null, null);
 
             Intent intentOpen = new Intent();
             intentOpen.setAction(Intent.ACTION_VIEW);
