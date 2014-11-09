@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
@@ -51,6 +52,8 @@ class SendImageNotificationInterface implements MyActivity.Callback {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        MediaScannerConnection.scanFile(context, new String[]{path}, null, null);
+
         Intent intentOpen = new Intent();
         intentOpen.setAction(Intent.ACTION_VIEW);
         Uri hacked_uri = Uri.parse("file://" + path);
