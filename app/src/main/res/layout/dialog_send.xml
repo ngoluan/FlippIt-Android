@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    style="ThemeDialogCustom">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+            <Button
+                android:layout_width="112dp"
+                android:layout_height="36dp"
+                android:text="Send"
+                android:drawableRight="@drawable/send_white"
+                android:background="@drawable/rounded_blue"
+                android:textColor="@color/white"
+                android:id="@+id/sendDialog"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_margin="4dp" />
+            <Button
+                android:layout_width="112dp"
+                android:layout_height="36dp"
+                android:text="Refresh"
+                android:drawableRight="@drawable/refresh_white"
+                android:background="@drawable/rounded_blue"
+                android:textColor="@color/white"
+                android:id="@+id/refreshDialog"
+                android:layout_toEndOf="@+id/sendDialog"
+                android:layout_alignTop="@+id/sendDialog"
+                android:layout_toRightOf="@+id/sendDialog" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <GridView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:id="@+id/gridView"
+        android:theme="@style/AppTheme"
+        android:columnWidth="100dp"
+        android:numColumns="2"
+        android:layout_marginBottom="8dp" />
+
+</LinearLayout>
