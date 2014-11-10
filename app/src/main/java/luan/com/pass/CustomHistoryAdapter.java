@@ -98,7 +98,7 @@ public class CustomHistoryAdapter extends BaseAdapter {
                 messageText.setText(messageText.getText().toString()+ "\n"+ HistoryFragment.historyItems.get(position).message)   ;
             }
             if(messageText.getText().toString().indexOf("\n")==0){//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
-               messageText.setText(messageText.getText().toString().substring(2));
+                messageText.setText(messageText.getText().toString().substring(1));
             }
             copyButton.setVisibility(View.GONE);
         }

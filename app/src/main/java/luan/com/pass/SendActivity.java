@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,10 +19,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.ImageButton;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -50,18 +49,20 @@ import java.util.List;
 
 public class SendActivity extends Activity {
     static final String TAG = "luan.com.pass";
+    static public NotificationManager mNotificationManager;
     static CustomDeviceAdapter customDeviceAdapter = null;
     static String targetID = null;
     static String targetType = null;
     static SharedPreferences mPrefs = null;
     static ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
     static NotificationCompat.Builder mBuilder = null;
-    static public NotificationManager mNotificationManager;
     static Context mContext = null;
+    static String regID = null;
     GridView deviceGrid = null;
 
     static public void getDevices() {
         final String email = mPrefs.getString("email", "");
+        regID = mPrefs.getString("registration_id", "");
         new AsyncTask<String, Integer, String>() {
             @Override
             protected String doInBackground(String... params) {
@@ -107,7 +108,9 @@ public class SendActivity extends Activity {
                     deviceItems.clear();
                     for (int i = 0; i < devices.length(); i++) {
                         JSONObject device = devices.getJSONObject(i);
-                        deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
+                        if (!device.getString("targetID").equals(regID)) {
+                            deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
+                        }
                     }
                     SharedPreferences.Editor editor = mPrefs.edit();
                     editor.putString("targetDevices", devices.toString());
@@ -137,6 +140,7 @@ public class SendActivity extends Activity {
 
         final Dialog dialog = new Dialog(mContext, R.style.ThemeDialogCustom);
         dialog.requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         dialog.setContentView(R.layout.dialog_send);
         dialog.show();
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -181,7 +185,7 @@ public class SendActivity extends Activity {
 
     private void createListView() {
         JSONArray devices = getStoredDevices();
-        if(devices.length()==0){
+        if (devices.length() == 0) {
             return;
         }
         try {
@@ -190,7 +194,7 @@ public class SendActivity extends Activity {
                 JSONObject device = devices.getJSONObject(i);
                 deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
             }
-            deviceItems.add(0,new DeviceItem("cloud", "cloud", "cloud"));
+            deviceItems.add(0, new DeviceItem("cloud", "cloud", "cloud"));
             customDeviceAdapter.updateEntries(deviceItems);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -428,6 +432,7 @@ public class SendActivity extends Activity {
                     mNotificationManager.notify(1, mBuilder.build());
                     finish();
                 }
+
                 protected void onProgressUpdate(Integer... progress) {
                     mBuilder.setProgress(100, progress[0], false);
                     // Displays the progress bar for the first time.
@@ -436,6 +441,55 @@ public class SendActivity extends Activity {
             }.execute();
 
         }
+    }
+
+    void deleteDevice(int position, final String email) {
+        final String targetID = deviceItems.get(position).targetID;
+
+        new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                // TODO Auto-generated method stub
+                String result = postData();
+                return result;
+            }
+
+            public String postData() {
+                String line = "";
+                BufferedReader in = null;
+
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = null;
+                httppost = new HttpPost("http://local-motion.ca/pass/deleteDevice.php");
+
+                try {
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                    nameValuePairs.add(new BasicNameValuePair("email", email));
+                    nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    HttpResponse response = httpclient.execute(httppost);
+
+                    in = new BufferedReader(new InputStreamReader(
+                            response.getEntity().getContent()));
+
+                    line = in.readLine();
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+                return line;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                getDevices();
+            }
+        }.execute();
+
     }
 
     public JSONArray getStoredDevices() {
