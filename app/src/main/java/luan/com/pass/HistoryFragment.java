@@ -31,9 +31,8 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
+import luan.com.pass
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,6 +59,8 @@ public class HistoryFragment extends Fragment {
     }
 
     static public void createListView(final int totalLoad) {
+        HistoryCallBack historyCallBack = new HistoryCallBack();
+        UpdateHistoryListview updateHistoryListview = new UpdateHistoryListview();
 
     }
     public static int calculateInSampleSize(
@@ -309,4 +310,11 @@ public class HistoryFragment extends Fragment {
 
         }
     }*/
+    static class HistoryCallBack implements HistoryCallBackInterface {
+        @Override
+        public void callBack(int totalLoad) {
+
+        }
+
+    }
 }

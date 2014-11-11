@@ -1,11 +1,9 @@
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.ProgressBar;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -26,7 +24,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import luan.com.pass.CustomHistoryAdapter;
 import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
 
@@ -35,8 +32,7 @@ import luan.com.pass.MyActivity;
  */
 public class UpdateHistoryListview
 {
-    public  UpdateHistoryListview(int totalLoad, ArrayList<HistoryItem> historyItems, ProgressBar progressBar, SharedPreferences mPrefs,
-                                  CustomHistoryAdapter adapter, CustomWidgetService customWidgetService){
+    public  UpdateHistoryListview(int totalLoad){
         final String email = mPrefs.getString("email", "");
         progressBar.setIndeterminate(true);
         new AsyncTask<String, Integer, String>() {
@@ -116,5 +112,12 @@ public class UpdateHistoryListview
 
             }
         }.execute();
+    }
+
+    /**
+     * Created by Luan on 2014-11-11.
+     */
+    public static interface HistoryCallbackInterface {
+        void callBack(int totalLoad);
     }
 }
