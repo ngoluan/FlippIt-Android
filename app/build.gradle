@@ -24,7 +24,7 @@ android {
     }
     sourceSets {
         main {
-            java.srcDirs = ['src/main/java', 'src/main/java/luan/com/pass/widget']
+            java.srcDirs = ['src/main/java', 'src/main/java/luan/com/pass/widget', 'src/main/java/luan/com/pass/utilities']
             res.srcDirs = ['src/main/res', 'src/main/res/xml']
         }
     }

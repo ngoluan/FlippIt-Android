@@ -54,7 +54,7 @@ import java.util.List;
 
 
 public class MyActivity extends ActionBarActivity {
-    static final String TAG = "luan.com.pass";
+    public static final String TAG = "luan.com.pass";
     private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
     static FragmentManager mFragmentManager = null;
     static SharedPreferences mPrefs = null;

@@ -14,28 +14,44 @@
  * limitations under the License.
  */
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.widget.RemoteViews;
+
+import luan.com.pass.MyActivity;
+import luan.com.pass.R;
 
 /**
  * The weather widget's AppWidgetProvider.
  */
 public class WidgetProvider extends AppWidgetProvider {
-
+    static Context mContext = null;
 
     public WidgetProvider() {
 
     }
 
-    @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        // Update each of the widgets with the remote adapter
-        for (int i = 0; i < appWidgetIds.length; ++i) {
-            RemoteViews layout = buildLayout(context, appWidgetIds[i], mIsLargeLayout);
-            appWidgetManager.updateAppWidget(appWidgetIds[i], layout);
+        final int N = appWidgetIds.length;
+        mContext=context;
+        // Perform this loop procedure for each App Widget that belongs to this provider
+        for (int i=0; i<N; i++) {
+            int appWidgetId = appWidgetIds[i];
+
+            // Create an Intent to launch ExampleActivity
+            Intent intent = new Intent(context, MyActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+
+            // Get the layout for the App Widget and attach an on-click listener
+            // to the button
+            RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+            //views.setOnClickPendingIntent(R.id.button, pendingIntent);
+
+            // Tell the AppWidgetManager to perform an update on the current app widget
+            appWidgetManager.updateAppWidget(appWidgetId, views);
         }
-        super.onUpdate(context, appWidgetManager, appWidgetIds);
     }
 }
