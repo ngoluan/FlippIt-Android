@@ -1,9 +1,11 @@
+package luan.com.pass.utilities;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -24,6 +26,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import luan.com.pass.HistoryFragment;
 import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
 
@@ -32,19 +35,20 @@ import luan.com.pass.MyActivity;
  */
 public class UpdateHistoryListview
 {
-    public  UpdateHistoryListview(int totalLoad){
-        final String email = mPrefs.getString("email", "");
+    public  UpdateHistoryListview(final int totalLoad, final String email, final ProgressBar progressBar,
+                                  final HistoryFragment.HistoryGetCallback historyGetCallback){
         progressBar.setIndeterminate(true);
-        new AsyncTask<String, Integer, String>() {
+        new AsyncTask<String, Integer, ArrayList<HistoryItem>>() {
             @Override
-            protected String doInBackground(String... params) {
+            protected ArrayList<HistoryItem> doInBackground(String... params) {
                 // TODO Auto-generated method stub
-                String result = postData();
-                return "";
+
+                return postData();
             }
 
-            public String postData() {
+            public ArrayList<HistoryItem> postData() {
                 String line = "";
+                ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
@@ -67,7 +71,6 @@ public class UpdateHistoryListview
 
                     try {
                         JSONArray result = new JSONArray(line);
-                        UpdateHistoryListview.this.hi
                         historyItems.clear();
                         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received history. Total messages: " + result.length());
                         for (int i = 0; i < result.length(); i++) {
@@ -102,22 +105,54 @@ public class UpdateHistoryListview
                     // TODO Auto-generated catch block
 
                 }
-                return "";
+                return historyItems;
             }
             @Override
-            protected void onPostExecute(String msg) {
-                flagLoading =false;
-                customHistoryAdapter.updateEntries(historyItems);
+            protected void onPostExecute(ArrayList<HistoryItem> historyItems) {
+                historyGetCallback.callBack(historyItems);
                 progressBar.setIndeterminate(false);
 
             }
         }.execute();
     }
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
 
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight
+                    && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+    }
+    public static Bitmap decodeSampledBitmapFromPath(String path,
+                                                     int reqWidth, int reqHeight, BitmapFactory.Options options) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
+    }
     /**
      * Created by Luan on 2014-11-11.
      */
-    public static interface HistoryCallbackInterface {
-        void callBack(int totalLoad);
-    }
+
 }

@@ -32,7 +32,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import luan.com.pass
+import luan.com.pass.utilities.HistoryGetCallbackInterface;
+import luan.com.pass.utilities.UpdateHistoryListview;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -46,10 +47,10 @@ import java.util.List;
  */
 public class HistoryFragment extends Fragment {
     static ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
-    static CustomHistoryAdapter customHistoryAdapter = null;
+    static public CustomHistoryAdapter customHistoryAdapter = null;
     View mView = null;
     static ListView historyList = null;
-    static Boolean flagLoading = false;
+    static public Boolean flagLoading = false;
     static public int totalLoad = 20;
     static public int lastHistoryTotal = 99;
     static ProgressBar progressBar = null;
@@ -59,46 +60,12 @@ public class HistoryFragment extends Fragment {
     }
 
     static public void createListView(final int totalLoad) {
-        HistoryCallBack historyCallBack = new HistoryCallBack();
-        UpdateHistoryListview updateHistoryListview = new UpdateHistoryListview();
+        String email = MyActivity.mPrefs.getString("email", "");
+        HistoryGetCallback historyCallBack = new HistoryGetCallback();
+        UpdateHistoryListview updateHistoryListview = new UpdateHistoryListview(20, email, progressBar, historyCallBack);
 
     }
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
 
-        if (height > reqHeight || width > reqWidth) {
-
-            final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
-
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            }
-        }
-
-        return inSampleSize;
-    }
-    public static Bitmap decodeSampledBitmapFromPath(String path,
-                                                         int reqWidth, int reqHeight, BitmapFactory.Options options) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeFile(path, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeFile(path, options);
-    }
     static public void deleteHistory(final int id, final int position) {
         new AsyncTask<String, Integer, String>() {
             @Override
@@ -310,11 +277,11 @@ public class HistoryFragment extends Fragment {
 
         }
     }*/
-    static class HistoryCallBack implements HistoryCallBackInterface {
-        @Override
-        public void callBack(int totalLoad) {
-
-        }
-
+public static class HistoryGetCallback implements HistoryGetCallbackInterface {
+    @Override
+    public void callBack(ArrayList<HistoryItem> historyItems) {
+        HistoryFragment.flagLoading =false;
+        HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
     }
+}
 }
