@@ -30,6 +30,8 @@ public class SendItem {
             sendIntent.setType(mimeType);
         }
 
+        sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
         mContext.startActivity(sendIntent);
     }
 }

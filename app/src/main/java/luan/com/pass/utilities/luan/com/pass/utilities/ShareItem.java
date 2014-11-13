@@ -28,7 +28,9 @@ public class ShareItem {
             shareIntent.putExtra(Intent.EXTRA_STREAM, hacked_uri);
             shareIntent.setType(mimeType);
         }
-
-        mContext.startActivity(Intent.createChooser(shareIntent, "Pass"));
+        shareIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent new_intent = Intent.createChooser(shareIntent, "Share via");
+        new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.getApplicationContext().startActivity(new_intent);
     }
 }

@@ -16,11 +16,4 @@ public class CopyClipboard {
         clipboard.setPrimaryClip(clip);
         Toast.makeText(mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
     }
-/*    static public void copyClipboard(String msg, Context mContext) {
-        ClipboardManager clipboard = (ClipboardManager)
-                mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Pass", msg);
-        clipboard.setPrimaryClip(clip);
-        Toast.makeText(mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
-    }*/
 }

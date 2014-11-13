@@ -14,6 +14,9 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import luan.com.pass.utilities.CopyClipboard;
+import luan.com.pass.utilities.DeleteHistory;
+import luan.com.pass.utilities.HistoryGetCallbackInterface;
+import luan.com.pass.utilities.OpenFile;
 import luan.com.pass.utilities.SendItem;
 import luan.com.pass.utilities.ShareItem;
 
@@ -118,13 +121,14 @@ public class CustomHistoryAdapter extends BaseAdapter {
         openButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HistoryFragment.openFile(position);
+                new OpenFile(HistoryFragment.historyItems.get(position), mContext);
             }
         });
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HistoryFragment.deleteHistory(HistoryFragment.historyItems.get(position).dbID, position);
+                HistoryGetCallbackInterface deleteHistoryCallback = new HistoryFragment.DeleteHistoryCallback();
+                new DeleteHistory(HistoryFragment.historyItems.get(position).dbID, position, mContext, deleteHistoryCallback);
             }
         });
 

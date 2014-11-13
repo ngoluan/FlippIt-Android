@@ -4,8 +4,6 @@ package luan.com.pass;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -33,6 +31,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import luan.com.pass.utilities.HistoryGetCallbackInterface;
+import luan.com.pass.utilities.SendFileNotificationInterface;
+import luan.com.pass.utilities.SendFileUpdateNotificationInterface;
+import luan.com.pass.utilities.SendImageNotificationInterface;
+import luan.com.pass.utilities.SendImageUpdateNotificationInterface;
 import luan.com.pass.utilities.UpdateHistoryListview;
 
 import java.io.BufferedReader;
@@ -65,50 +67,7 @@ public class HistoryFragment extends Fragment {
         new UpdateHistoryListview(totalLoad, email, progressBar, null, historyCallBack, null);
     }
 
-    static public void deleteHistory(final int id, final int position) {
-        new AsyncTask<String, Integer, String>() {
-            @Override
-            protected String doInBackground(String... params) {
-                // TODO Auto-generated method stub
-                String result = postData();
-                return result;
-            }
 
-            public String postData() {
-                String line = "";
-                BufferedReader in = null;
-
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/deleteMessage.php");
-                String email = MyActivity.mPrefs.getString("email", "");
-                try {
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                    nameValuePairs.add(new BasicNameValuePair("email", email));
-                    nameValuePairs.add(new BasicNameValuePair("id", String.valueOf(id)));
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                    HttpResponse response = httpclient.execute(httppost);
-
-                    in = new BufferedReader(new InputStreamReader(
-                            response.getEntity().getContent()));
-
-                    line = in.readLine();
-
-                } catch (ClientProtocolException e) {
-                    // TODO Auto-generated catch block
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                }
-                return line;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-                historyItems.remove(position);
-                animateDelete();
-            }
-        }.execute();
-    }
     static public void deleteHistoryAll() {
         new AsyncTask<String, Integer, String>() {
             @Override
@@ -175,44 +134,6 @@ public class HistoryFragment extends Fragment {
         });
         historyList.startAnimation(animation);
     }
-    static public void openFile(int position) {
-        String fileName = HistoryFragment.historyItems.get(position).fileName;
-        Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-        String mimeType = MyActivity.getMimeType(fileName);
-
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-        String email = MyActivity.mPrefs.getString("email", "");
-        DownloadFiles downloadFiles = new DownloadFiles();
-        NotificationManager mNotificationManager = (NotificationManager)
-                MyActivity.mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(MyActivity.mContext);
-        if (!file.exists()) {
-            if (HistoryFragment.historyItems.get(position).type.equals("file")) {
-                Log.i(MyActivity.TAG, "Downloading file.");
-                MyActivity.Callback sendFileNotificationInterface = new GcmIntentService.SendFileNotificationInterface();
-                MyActivity.Callback sendFileUpdateNotificationInterface = new GcmIntentService.SendFileUpdateNotificationInterface();
-                downloadFiles.getFileFromServer(email, HistoryFragment.historyItems.get(position).fileName, null,
-                        HistoryFragment.historyItems.get(position).message, sendFileNotificationInterface, sendFileUpdateNotificationInterface,
-                        MyActivity.mContext, mNotificationManager, mBuilder);
-                return;
-            } else if (HistoryFragment.historyItems.get(position).type.equals("image")) {
-                Log.i(MyActivity.TAG, "Downloading image.");
-                MyActivity.Callback sendImageNotificationInterface = new SendImageNotificationInterface();
-                MyActivity.Callback sendImageUpdateNotificationInterface = new GcmIntentService.SendImageUpdateNotificationInterface();
-                downloadFiles.getImageFromServer(email, HistoryFragment.historyItems.get(position).fileName, null,
-                        HistoryFragment.historyItems.get(position).message, sendImageNotificationInterface, sendImageUpdateNotificationInterface,
-                        MyActivity.mContext, mNotificationManager, mBuilder);
-                return;
-            }
-        }
-        //Log.d(MyActivity.TAG, String.valueOf(position));
-        Intent intentOpen = new Intent();
-        intentOpen.setAction(Intent.ACTION_VIEW);
-        intentOpen.setDataAndType(hacked_uri, mimeType);
-        MyActivity.mContext.startActivity(Intent.createChooser(intentOpen, "Pass"));
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -272,5 +193,22 @@ public static class HistoryGetCallback implements HistoryGetCallbackInterface {
         HistoryFragment.historyItems=historyItems;
         HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
     }
+
+    @Override
+    public void callBack(int i) {
+
+    }
 }
+    public static class DeleteHistoryCallback implements  HistoryGetCallbackInterface{
+        @Override
+        public void callBack(ArrayList<HistoryItem> historyItems) {
+
+        }
+
+        @Override
+        public void callBack(int i) {
+            HistoryFragment.historyItems.remove(i);
+            HistoryFragment.animateDelete();
+        }
+    }
 }

@@ -1,4 +1,4 @@
-package luan.com.pass;
+package luan.com.pass.utilities;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -19,10 +19,14 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+import luan.com.pass.MyActivity;
+import luan.com.pass.R;
+import luan.com.pass.UpdateHistory;
+
 /**
  * Created by Luan on 2014-11-02.
  */
-class SendImageNotificationInterface implements MyActivity.Callback {
+public class SendImageNotificationInterface implements MyActivity.Callback {
     String TAG=null;
     @Override
     public void callBack(String position, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder) {

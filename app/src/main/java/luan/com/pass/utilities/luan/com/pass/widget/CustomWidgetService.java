@@ -82,33 +82,40 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
 
         row.setImageViewBitmap(R.id.imageView, WidgetProvider.historyItems.get(i).bitmap);
 
-        Bundle extras = new Bundle();
-        extras.putInt("position", i);
-        extras.putString("action", "copy");
-        Intent fillInIntent = new Intent();
-        fillInIntent.putExtras(extras);
-        row.setOnClickFillInIntent(R.id.copy, fillInIntent);
+        Bundle copyExtras = new Bundle();
+        copyExtras.putInt("position", i);
+        copyExtras.putString("action", "copy");
+        Intent copyFillInIntent = new Intent();
+        copyFillInIntent.putExtras(copyExtras);
+        row.setOnClickFillInIntent(R.id.copy, copyFillInIntent);
 
-        extras = new Bundle();
-        extras.putInt("position", i);
-        extras.putString("action", "open");
-        fillInIntent = new Intent();
-        fillInIntent.putExtras(extras);
-        row.setOnClickFillInIntent(R.id.open, fillInIntent);
+        Bundle openExtras = new Bundle();
+        openExtras.putInt("position", i);
+        openExtras.putString("action", "open");
+        Intent openFillInIntent = new Intent();
+        openFillInIntent.putExtras(openExtras);
+        row.setOnClickFillInIntent(R.id.open, openFillInIntent);
 
-        extras = new Bundle();
-        extras.putInt("position", i);
-        extras.putString("action", "share");
-        fillInIntent = new Intent();
-        fillInIntent.putExtras(extras);
-        row.setOnClickFillInIntent(R.id.share, fillInIntent);
+        Bundle shareExtras = new Bundle();
+        shareExtras.putInt("position", i);
+        shareExtras.putString("action", "share");
+        Intent shareFillInIntent = new Intent();
+        shareFillInIntent.putExtras(shareExtras);
+        row.setOnClickFillInIntent(R.id.share, shareFillInIntent);
 
-        extras = new Bundle();
-        extras.putInt("position", i);
-        extras.putString("action", "share");
-        fillInIntent = new Intent();
-        fillInIntent.putExtras(extras);
-        row.setOnClickFillInIntent(R.id.delete, fillInIntent);
+        Bundle deleteExtras = new Bundle();
+        deleteExtras.putInt("position", i);
+        deleteExtras.putString("action", "delete");
+        Intent deleteFillInIntent = new Intent();
+        deleteFillInIntent.putExtras(deleteExtras);
+        row.setOnClickFillInIntent(R.id.delete, deleteFillInIntent);
+
+        Bundle sendExtras = new Bundle();
+        sendExtras.putInt("position", i);
+        sendExtras.putString("action", "send");
+        Intent sendFillInIntent = new Intent();
+        sendFillInIntent.putExtras(sendExtras);
+        row.setOnClickFillInIntent(R.id.send, sendFillInIntent);
         return row;
     }
 

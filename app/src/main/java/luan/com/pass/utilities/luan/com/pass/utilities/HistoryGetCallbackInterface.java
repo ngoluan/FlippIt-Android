@@ -9,4 +9,5 @@ import luan.com.pass.HistoryItem;
  */
 public interface HistoryGetCallbackInterface {
     void callBack(ArrayList<HistoryItem> historyItems);
+    void callBack(int i);
 }
