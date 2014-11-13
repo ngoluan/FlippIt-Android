@@ -35,7 +35,7 @@ public class DownloadFiles {
         mBuilder.setContentTitle("Pass")
                 .setContentText("Download in progress")
                 .setSmallIcon(R.drawable.action_icon);
-        Toast.makeText(context,"Downloading file.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Downloading file.", Toast.LENGTH_SHORT).show();
         new AsyncTask<String, String, Bitmap>() {
             @Override
             protected Bitmap doInBackground(String... params) {
@@ -49,13 +49,12 @@ public class DownloadFiles {
                 Bitmap image = null;
                 // Create a new HttpClient and Post Header
                 HttpClient httpclient = new DefaultHttpClient();
-                Log.d("luan.com.pass",email);
 
                 HttpPost httppost = null;
 
                 try {
-                    url = "http://www.local-motion.ca/pass/uploads/"+email + '/'+URLEncoder.encode( url, "UTF-8");
-                    Log.i(MyActivity.TAG, getClass().getName()+": "+ "Getting image. Url: " + url);
+                    url = "http://www.local-motion.ca/pass/uploads/" + email + '/' + URLEncoder.encode(url, "UTF-8");
+                    Log.i(MyActivity.TAG, getClass().getName() + ": " + "Getting image. Url: " + url);
                     httppost = new HttpPost(url);
                     HttpResponse response = httpclient.execute(httppost);
 
@@ -72,7 +71,7 @@ public class DownloadFiles {
 
             @Override
             protected void onPostExecute(Bitmap image) {
-                Log.i(MyActivity.TAG, getClass().getName()+": "+ "Image received. Filesize: " + image.getByteCount());
+                Log.i(MyActivity.TAG, getClass().getName() + ": " + "Image received. Filesize: " + image.getByteCount());
                 mainCallback.callBack(position, image, context, mNotificationManager, mBuilder);
                 mainCallback.callBack(fileName, msg, image, context, mNotificationManager, mBuilder);
             }
@@ -90,7 +89,7 @@ public class DownloadFiles {
         mBuilder.setContentTitle("Pass")
                 .setContentText("Download in progress")
                 .setSmallIcon(R.drawable.action_icon);
-        Toast.makeText(context,"Downloading file.",Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, "Downloading file.", Toast.LENGTH_SHORT).show();
         new AsyncTask<String, String, String>() {
             @Override
             protected String doInBackground(String... params) {

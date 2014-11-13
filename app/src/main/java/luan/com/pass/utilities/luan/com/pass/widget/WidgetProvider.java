@@ -20,7 +20,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.widget.ProgressBar;
+import android.net.Uri;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
@@ -35,17 +35,68 @@ import luan.com.pass.utilities.UpdateHistoryListview;
  * The weather widget's AppWidgetProvider.
  */
 public class WidgetProvider extends AppWidgetProvider {
+    public static final String TOAST_ACTION = "luan.com.pass.TOAST_ACTION";
     static Context mContext = null;
     static RemoteViews views=null;
     static ArrayList<HistoryItem> historyItems= new ArrayList<HistoryItem>();
     static AppWidgetManager mAppWidgetManager=null;
     static int appWidgetId = 0;
+    static int[] mAppWidgetIds = null;
     public WidgetProvider() {
 
     }
 
+    public static void updateWidget() {
+        final int N = mAppWidgetIds.length;
+        for (int i = 0; i < N; i++) {
+            appWidgetId = mAppWidgetIds[i];
+
+            // Create an Intent to launch ExampleActivity
+            Intent intent = new Intent(mContext, CustomWidgetService.class);
+            views.setRemoteAdapter(R.id.listViewWidget, intent);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetIds[i]);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+
+            Intent rowIntent = new Intent(mContext, WidgetProvider.class);
+            rowIntent.setAction("row_action");
+            rowIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetIds[i]);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+            PendingIntent toastPendingIntent = PendingIntent.getBroadcast(mContext, 0, rowIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+            views.setPendingIntentTemplate(R.id.listViewWidget, toastPendingIntent);
+
+            Intent refreshIntent = new Intent(mContext, WidgetProvider.class);
+            refreshIntent.setAction("Refresh");
+            PendingIntent pendingRefreshIntent = PendingIntent.getBroadcast(mContext, 0, refreshIntent, 0);
+            views.setOnClickPendingIntent(R.id.refreshButton, pendingRefreshIntent);
+
+            Intent openIntent = new Intent(mContext, MyActivity.class);
+            PendingIntent pendingOpenIntent = PendingIntent.getActivity(mContext, 0, openIntent, 0);
+            views.setOnClickPendingIntent(R.id.logo, pendingOpenIntent);
+            views.setOnClickPendingIntent(R.id.title, pendingOpenIntent);
+
+            WidgetProvider.mAppWidgetManager.updateAppWidget(appWidgetId, WidgetProvider.views);
+        }
+
+    }
+
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        if (intent.getAction().equals("row_action")) {
+            int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                    AppWidgetManager.INVALID_APPWIDGET_ID);
+            int viewIndex = intent.getIntExtra("position", 0);
+            String viewAction = intent.getStringExtra("action");
+        } else if (intent.getAction().equals("Refresh")) {
+            updateWidget();
+        }
+        super.onReceive(context, intent);
+    }
+
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         final int N = appWidgetIds.length;
+        mAppWidgetIds = appWidgetIds;
         mContext=context;
         mAppWidgetManager=appWidgetManager;
         SharedPreferences mPrefs = context.getSharedPreferences(mContext.getPackageName(),
@@ -56,24 +107,15 @@ public class WidgetProvider extends AppWidgetProvider {
         WidgetGetCallback widgetGetCallback = new WidgetGetCallback();
         new UpdateHistoryListview(20, email, null, null,null,widgetGetCallback );
         // Perform this loop procedure for each App Widget that belongs to this provider
-        for (int i=0; i<N; i++) {
-            appWidgetId = appWidgetIds[i];
 
-            // Create an Intent to launch ExampleActivity
-            Intent intent = new Intent(context, MyActivity.class);
-            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
-
-            //views.setOnClickPendingIntent(R.id.button, pendingIntent);
-
-            // Tell the AppWidgetManager to perform an update on the current app widget
-            appWidgetManager.updateAppWidget(appWidgetId, views);
-        }
     }
+
     public static class WidgetGetCallback implements HistoryGetCallbackInterface {
         @Override
         public void callBack(ArrayList<HistoryItem> historyItems) {
             WidgetProvider.historyItems=historyItems;
-            WidgetProvider.mAppWidgetManager.updateAppWidget(appWidgetId, WidgetProvider.views);
+            updateWidget();
+
         }
     }
 }

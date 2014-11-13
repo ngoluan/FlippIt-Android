@@ -1,15 +1,15 @@
 package luan.com.pass.widget;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import java.util.ArrayList;
-
-import luan.com.pass.HistoryFragment;
-import luan.com.pass.HistoryItem;
+import luan.com.pass.MyActivity;
 import luan.com.pass.R;
 
 /**
@@ -18,18 +18,22 @@ import luan.com.pass.R;
 public class CustomWidgetService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        return(new ListViewFactory(this.getApplicationContext()));
+        Log.i(MyActivity.TAG, getClass().getName() + ": Widget service launched.");
+        return (new ListViewFactory(this.getApplicationContext(), intent));
     }
 }
 class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
     private Context mContext =null;
     private int appWidgetId;
-    public ListViewFactory(Context ctxt) {
+
+    public ListViewFactory(Context ctxt, Intent intent) {
+        appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+                AppWidgetManager.INVALID_APPWIDGET_ID);
         this.mContext =ctxt;
     }
     @Override
     public void onCreate() {
-
+        Log.i(MyActivity.TAG, getClass().getName() + ": ListViewFactory created.");
     }
 
     @Override
@@ -44,37 +48,66 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
 
     @Override
     public int getCount() {
-        return 0;
+        return (WidgetProvider.historyItems.size());
     }
 
     @Override
     public RemoteViews getViewAt(int i) {
-        RemoteViews row=null;
-        row=new RemoteViews(mContext.getPackageName(), R.layout.row_history);
-
+        RemoteViews row = new RemoteViews(mContext.getPackageName(), R.layout.row_history);
+        String message = "";
         row.setTextViewText(R.id.dateTime, WidgetProvider.historyItems.get(i).dateTime);
         if(WidgetProvider.historyItems.get(i).type.equals("text")){
-            row.setTextViewText(R.id.message,WidgetProvider.historyItems.get(i).message);
+            message = WidgetProvider.historyItems.get(i).message;
             row.setViewVisibility(R.id.open, View.GONE);
+            row.setViewVisibility(R.id.copy, View.VISIBLE);
         }
         else{
             if (WidgetProvider.historyItems.get(i).type.equals("file")) {
-                row.setTextViewText(R.id.message,"File transfer: " + WidgetProvider.historyItems.get(i).fileName );
+                message = "File transfer: " + WidgetProvider.historyItems.get(i).fileName;
             } else if (WidgetProvider.historyItems.get(i).type.equals("image")) {
                 if (WidgetProvider.historyItems.get(i).bitmap == null) {
                     row.setTextViewText(R.id.message,"Image transfer: " + WidgetProvider.historyItems.get(i).fileName +"\nImage not available on device. Tap to download.");
                 }
             }
-            /*if(!WidgetProvider.historyItems.get(i).message.equals("")){//attaches message to file or image transfer if a message exist
-                row.setTextViewText(R.id.message,messageText.getText().toString()+ "\n"+ WidgetProvider.historyItems.get(i).message)   ;
+            if (!WidgetProvider.historyItems.get(i).message.equals("")) {//attaches message to file or image transfer if a message exist
+                message = message + "\n" + WidgetProvider.historyItems.get(i).message;
             }
-            if(messageText.getText().toString().indexOf("\n")==0){//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
-                row.setTextViewText(R.id.message,messageText.getText().toString().substring(1));
+            if (message.indexOf("\n") == 0) {//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
+                message = message.substring(1);
             }
-            row.setViewVisibility(R.id.copy, View.GONE);*/
+            row.setViewVisibility(R.id.copy, View.GONE);
+            row.setViewVisibility(R.id.open, View.VISIBLE);
         }
+        row.setTextViewText(R.id.message, message);
 
-        return null;
+        Bundle extras = new Bundle();
+        extras.putInt("position", i);
+        extras.putString("action", "copy");
+        Intent fillInIntent = new Intent();
+        fillInIntent.putExtras(extras);
+        row.setOnClickFillInIntent(R.id.copy, fillInIntent);
+
+        extras = new Bundle();
+        extras.putInt("position", i);
+        extras.putString("action", "open");
+        fillInIntent = new Intent();
+        fillInIntent.putExtras(extras);
+        row.setOnClickFillInIntent(R.id.open, fillInIntent);
+
+        extras = new Bundle();
+        extras.putInt("position", i);
+        extras.putString("action", "share");
+        fillInIntent = new Intent();
+        fillInIntent.putExtras(extras);
+        row.setOnClickFillInIntent(R.id.share, fillInIntent);
+
+        extras = new Bundle();
+        extras.putInt("position", i);
+        extras.putString("action", "share");
+        fillInIntent = new Intent();
+        fillInIntent.putExtras(extras);
+        row.setOnClickFillInIntent(R.id.delete, fillInIntent);
+        return row;
     }
 
     @Override
@@ -84,16 +117,17 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
 
     @Override
     public int getViewTypeCount() {
-        return 0;
+        return 1;
     }
 
     @Override
     public long getItemId(int i) {
-        return 0;
+        return i;
     }
 
     @Override
     public boolean hasStableIds() {
         return false;
     }
+
 }
