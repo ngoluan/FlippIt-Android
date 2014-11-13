@@ -1,9 +1,6 @@
 package luan.com.pass;
 
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +10,12 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import luan.com.pass.utilities.CopyClipboard;
+import luan.com.pass.utilities.SendItem;
+import luan.com.pass.utilities.ShareItem;
 
 
 /**
@@ -100,52 +100,19 @@ public class CustomHistoryAdapter extends BaseAdapter {
         copyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MyActivity.copyClipboard(HistoryFragment.historyItems.get(position).message);
-                Toast.makeText(MyActivity.mContext, "Text copied", Toast.LENGTH_SHORT).show();
+                new CopyClipboard(HistoryFragment.historyItems.get(position).message, mContext);
             }
         });
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent shareIntent = new Intent();
-                if (HistoryFragment.historyItems.get(position).type.equals("text")) {
-                    shareIntent.setAction(Intent.ACTION_SEND);
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, HistoryFragment.historyItems.get(position).message);
-                    shareIntent.setType("text/plain");
-                } else {
-                    String fileName = HistoryFragment.historyItems.get(position).fileName;
-                    Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-                    String mimeType = MyActivity.getMimeType(fileName);
-
-                    shareIntent.setAction(Intent.ACTION_SEND);
-                    shareIntent.putExtra(Intent.EXTRA_STREAM, hacked_uri);
-                    shareIntent.setType(mimeType);
-                }
-
-                MyActivity.mContext.startActivity(Intent.createChooser(shareIntent, "Pass"));
+                new ShareItem(HistoryFragment.historyItems.get(position), mContext);
             }
         });
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent sendIntent = new Intent(mContext, SendActivity.class);
-                if (HistoryFragment.historyItems.get(position).type.equals("text")) {
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.putExtra(Intent.EXTRA_TEXT, HistoryFragment.historyItems.get(position).message);
-                    sendIntent.setType("text/plain");
-                } else {
-                    String fileName = HistoryFragment.historyItems.get(position).fileName;
-                    Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
-                            Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-                    String mimeType = MyActivity.getMimeType(fileName);
-
-                    sendIntent.setAction(Intent.ACTION_SEND);
-                    sendIntent.putExtra(Intent.EXTRA_STREAM, hacked_uri);
-                    sendIntent.setType(mimeType);
-                }
-
-                MyActivity.mContext.startActivity(sendIntent);
+                new SendItem(HistoryFragment.historyItems.get(position), mContext);
             }
         });
         openButton.setOnClickListener(new View.OnClickListener() {

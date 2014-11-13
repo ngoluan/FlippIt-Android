@@ -80,6 +80,8 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
         }
         row.setTextViewText(R.id.message, message);
 
+        row.setImageViewBitmap(R.id.imageView, WidgetProvider.historyItems.get(i).bitmap);
+
         Bundle extras = new Bundle();
         extras.putInt("position", i);
         extras.putString("action", "copy");

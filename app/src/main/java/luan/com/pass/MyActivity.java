@@ -2,17 +2,13 @@ package luan.com.pass;
 
 import android.app.Dialog;
 import android.app.NotificationManager;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
@@ -21,7 +17,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
@@ -36,19 +31,13 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,27 +64,18 @@ public class MyActivity extends ActionBarActivity {
 
     static public String typeOfMessage(String fileName) {
         String type = null;
-        fileName=fileName.toLowerCase();
+        fileName = fileName.toLowerCase();
         if (fileName.contains(".jpg") == true || fileName.contains(".jpeg") == true || fileName.contains(".gif") == true || fileName.contains(".png") == true) {
-            type= "image";
+            type = "image";
         } else if (!fileName.equals("")) {
-            type= "file";
+            type = "file";
         } else {
-            type= "text";
+            type = "text";
         }
         Log.i(MyActivity.TAG, "Message type: " + type);
         return type;
     }
 
-
-
-    static public void copyClipboard(String msg) {
-        ClipboardManager clipboard = (ClipboardManager)
-                MyActivity.mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Pass", msg);
-        clipboard.setPrimaryClip(clip);
-        Toast.makeText(MyActivity.mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
-    }
 
     static public String getMimeType(String fileName) {
         MimeTypeMap myMime = MimeTypeMap.getSingleton();
@@ -140,8 +120,8 @@ public class MyActivity extends ActionBarActivity {
             gcm = GoogleCloudMessaging.getInstance(this);
 
             regid = getRegistrationId(mContext);
-            Log.d(TAG,"test1"+regid);
-            if (regid.isEmpty()|| regid.equals("")) {
+            Log.d(TAG, "test1" + regid);
+            if (regid.isEmpty() || regid.equals("")) {
 
                 registerInBackground();
             }
@@ -240,9 +220,9 @@ public class MyActivity extends ActionBarActivity {
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    Log.d(TAG,"test"+gcm.toString());
+                    Log.d(TAG, "test" + gcm.toString());
                     regid = gcm.register("155379597538");
-                    Log.d(TAG,"test"+regid.toString());
+                    Log.d(TAG, "test" + regid.toString());
                     msg = "Device registered, registration ID=" + regid;
                     storeRegistrationId(regid);
                 } catch (IOException ex) {
@@ -264,7 +244,8 @@ public class MyActivity extends ActionBarActivity {
                 .replace(R.id.container, new LoginFragment())
                 .commit();
     }
-    public void changeDeviceName(){
+
+    public void changeDeviceName() {
         final Dialog dialog = new Dialog(this);
         dialog.setTitle("Change device name to:");
         dialog.setContentView(R.layout.dialog_devicename);
@@ -274,7 +255,7 @@ public class MyActivity extends ActionBarActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText deviceName = (EditText)dialog.findViewById(R.id.deviceName);
+                EditText deviceName = (EditText) dialog.findViewById(R.id.deviceName);
 
                 final SharedPreferences prefs = getSharedPreferences(mContext.getPackageName(),
                         Context.MODE_PRIVATE);
@@ -292,8 +273,9 @@ public class MyActivity extends ActionBarActivity {
                         String result = postData(params[0]);
                         return result;
                     }
+
                     public String postData(String deviceName2) {
-                        String line ="";
+                        String line = "";
                         BufferedReader in = null;
 
                         HttpClient httpclient = new DefaultHttpClient();
@@ -323,11 +305,12 @@ public class MyActivity extends ActionBarActivity {
                         }
                         return line;
                     }
+
                     @Override
                     protected void onPostExecute(String msg) {
                         dialog.dismiss();
                     }
-                }.execute( deviceName.getText().toString());
+                }.execute(deviceName.getText().toString());
             }
         });
     }
@@ -340,20 +323,16 @@ public class MyActivity extends ActionBarActivity {
         int id = item.getItemId();
         if (id == R.id.action_settings) {
             return true;
-        }
-        else if (id == R.id.action_logout) {
+        } else if (id == R.id.action_logout) {
             logout();
-        }
-        else if (id == R.id.action_refresh) {
+        } else if (id == R.id.action_refresh) {
             HistoryFragment.createListView(20);
-        }
-        else if (id == R.id.action_clear_all) {
+        } else if (id == R.id.action_clear_all) {
             HistoryFragment.deleteHistoryAll();
-        }
-        else if (id == R.id.action_deviceName) {
+        } else if (id == R.id.action_deviceName) {
             changeDeviceName();
         }
-            return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item);
     }
 
     public interface Callback {

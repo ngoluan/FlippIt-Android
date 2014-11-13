@@ -16,14 +16,10 @@
 
 package luan.com.pass;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.IntentService;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,7 +28,6 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -41,13 +36,9 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.util.List;
+
+import luan.com.pass.utilities.CopyClipboard;
 
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
@@ -151,16 +142,9 @@ public class GcmIntentService extends IntentService {
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.cancel(1);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-        copyClipboard(msg);
+        new CopyClipboard(msg, mContext);
         UpdateHistory updateHistory=new UpdateHistory();
         updateHistory.updateHistory(mContext);
-    }
-
-    private void copyClipboard(String msg) {
-        ClipboardManager clipboard = (ClipboardManager)
-                mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Pass", msg);
-        clipboard.setPrimaryClip(clip);
     }
 
     private void imgNotification(String fileName, String msg) {
