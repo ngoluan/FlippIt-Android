@@ -62,8 +62,7 @@ public class HistoryFragment extends Fragment {
     static public void createListView(final int totalLoad) {
         String email = MyActivity.mPrefs.getString("email", "");
         HistoryGetCallback historyCallBack = new HistoryGetCallback();
-        UpdateHistoryListview updateHistoryListview = new UpdateHistoryListview(20, email, progressBar, historyCallBack);
-
+        new UpdateHistoryListview(totalLoad, email, progressBar, null, historyCallBack, null);
     }
 
     static public void deleteHistory(final int id, final int position) {
@@ -266,21 +265,11 @@ public class HistoryFragment extends Fragment {
     public void animateUpdateListview(){
 
     }
-/*    class OpenFileInterface implements MyActivity.Callback {
-        @Override
-        public void callBack(String position, Bitmap image) {
-            openFile(Integer.parseInt(position));
-        }
-
-        @Override
-        public void callBack(String fileName, String msg, Bitmap image) {
-
-        }
-    }*/
 public static class HistoryGetCallback implements HistoryGetCallbackInterface {
     @Override
     public void callBack(ArrayList<HistoryItem> historyItems) {
         HistoryFragment.flagLoading =false;
+        HistoryFragment.historyItems=historyItems;
         HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
     }
 }

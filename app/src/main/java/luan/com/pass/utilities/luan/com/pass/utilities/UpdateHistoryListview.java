@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.RemoteViews;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -29,15 +30,19 @@ import java.util.List;
 import luan.com.pass.HistoryFragment;
 import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
+import luan.com.pass.widget.WidgetProvider;
 
 /**
  * Created by Luan on 2014-11-10.
  */
 public class UpdateHistoryListview
 {
-    public  UpdateHistoryListview(final int totalLoad, final String email, final ProgressBar progressBar,
-                                  final HistoryFragment.HistoryGetCallback historyGetCallback){
-        progressBar.setIndeterminate(true);
+    public  UpdateHistoryListview(final int totalLoad, final String email, final ProgressBar progressBar, final RemoteViews view,
+                                  final HistoryFragment.HistoryGetCallback historyGetCallback, final WidgetProvider.WidgetGetCallback widgetGetCallback){
+        if(progressBar!=null){
+            progressBar.setIndeterminate(true);
+        }
+
         new AsyncTask<String, Integer, ArrayList<HistoryItem>>() {
             @Override
             protected ArrayList<HistoryItem> doInBackground(String... params) {
@@ -109,8 +114,15 @@ public class UpdateHistoryListview
             }
             @Override
             protected void onPostExecute(ArrayList<HistoryItem> historyItems) {
-                historyGetCallback.callBack(historyItems);
-                progressBar.setIndeterminate(false);
+                if(historyGetCallback!=null){
+                    historyGetCallback.callBack(historyItems);
+                }
+                if(widgetGetCallback!=null){
+                    widgetGetCallback.callBack(historyItems);
+                }
+                if(progressBar!=null){
+                    progressBar.setIndeterminate(false);
+                }
 
             }
         }.execute();

@@ -57,7 +57,7 @@
                 <data android:mimeType="video/*" />
             </intent-filter>
         </activity>
-        <receiver android:name="WidgetProvider">
+        <receiver android:name=".widget.WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -65,7 +65,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_info" />
         </receiver>
-        <service android:name="CustomWidgetService"
+        <service android:name=".widget.CustomWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS"
             android:exported="false" />
     </application>

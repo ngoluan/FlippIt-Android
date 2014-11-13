@@ -26,12 +26,6 @@ public class CustomHistoryAdapter extends BaseAdapter {
     Context mContext = null;
     LayoutInflater inflater = null;
 
-    public CustomHistoryAdapter(Context context, ArrayList<HistoryItem> items) {
-        mContext = MyActivity.mContext;
-        inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        historyItems = items;
-    }
-
     public CustomHistoryAdapter(Context context) {
         mContext = MyActivity.mContext;
         inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -53,11 +47,6 @@ public class CustomHistoryAdapter extends BaseAdapter {
     public long getItemId(int arg0) {
         // TODO Auto-generated method stub
         return arg0;
-    }
-
-    public void addItem(ArrayList<HistoryItem> historyItems2) {
-        historyItems.addAll(historyItems2);
-        notifyDataSetChanged();
     }
 
     @Override
