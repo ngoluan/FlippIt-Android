@@ -77,7 +77,6 @@ public class UpdateHistoryListview
                     try {
                         JSONArray result = new JSONArray(line);
                         historyItems.clear();
-                        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received history. Total messages: " + result.length());
                         for (int i = 0; i < result.length(); i++) {
                             JSONObject item = result.getJSONObject(i);
                             historyItems.add(new HistoryItem(
@@ -114,6 +113,7 @@ public class UpdateHistoryListview
             }
             @Override
             protected void onPostExecute(ArrayList<HistoryItem> historyItems) {
+                Log.i(MyActivity.TAG, getClass().getName() + ": " + "Callback: " + String.valueOf(widgetGetCallback));
                 if(historyGetCallback!=null){
                     historyGetCallback.callBack(historyItems);
                 }

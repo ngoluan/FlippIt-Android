@@ -17,6 +17,7 @@ package luan.com.pass.widget;/*
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -27,7 +28,6 @@ import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 
-import luan.com.pass.HistoryFragment;
 import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
 import luan.com.pass.R;
@@ -43,13 +43,15 @@ import luan.com.pass.utilities.UpdateHistoryListview;
  * The weather widget's AppWidgetProvider.
  */
 public class WidgetProvider extends AppWidgetProvider {
-    public static final String TOAST_ACTION = "luan.com.pass.TOAST_ACTION";
     static Context mContext = null;
-    static RemoteViews views=null;
-    static ArrayList<HistoryItem> historyItems= new ArrayList<HistoryItem>();
-    static AppWidgetManager mAppWidgetManager=null;
+    static RemoteViews views = null;
+    static ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
+    static AppWidgetManager mAppWidgetManager = null;
     static int appWidgetId = 0;
     static int[] mAppWidgetIds = null;
+    WidgetGetCallback widgetGetCallback = null;
+    UpdateHistoryListview updateHistoryListview = null;
+
     public WidgetProvider() {
 
     }
@@ -57,10 +59,12 @@ public class WidgetProvider extends AppWidgetProvider {
     public static void updateWidget() {
 
         final int N = mAppWidgetIds.length;
+        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Listview:" + mAppWidgetIds.length);
         for (int i = 0; i < N; i++) {
             appWidgetId = mAppWidgetIds[i];
 
             // Create an Intent to launch ExampleActivity
+
             Intent intent = new Intent(mContext, CustomWidgetService.class);
             views.setRemoteAdapter(R.id.listViewWidget, intent);
 
@@ -86,10 +90,13 @@ public class WidgetProvider extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.title, pendingOpenIntent);
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
-            views.setProgressBar(R.id.progressBar,0,0,false);
+            views.setProgressBar(R.id.progressBar, 0, 0, false);
 
+            Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Received intent action:" + appWidgetId);
+
+            ComponentName thisWidget = new ComponentName(mContext, WidgetProvider.class);
+            mAppWidgetManager.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.listViewWidget);
             WidgetProvider.mAppWidgetManager.updateAppWidget(appWidgetId, WidgetProvider.views);
-
         }
 
     }
@@ -106,25 +113,21 @@ public class WidgetProvider extends AppWidgetProvider {
             int viewIndex = intent.getIntExtra("position", 0);
             String viewAction = intent.getStringExtra("action");
 
-            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Size:" +viewAction);
-            if(viewAction.equals("copy")){
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Size:" + viewAction);
+            if (viewAction.equals("copy")) {
                 new CopyClipboard(WidgetProvider.historyItems.get(viewIndex).message, mContext);
-            }
-            else if(viewAction.equals("send")){
+            } else if (viewAction.equals("send")) {
                 new SendItem(WidgetProvider.historyItems.get(viewIndex), mContext);
-            }
-            else if(viewAction.equals("share")){
+            } else if (viewAction.equals("share")) {
                 new ShareItem(WidgetProvider.historyItems.get(viewIndex), mContext);
-            }
-            else if(viewAction.equals("delete")){
+            } else if (viewAction.equals("delete")) {
                 HistoryGetCallbackInterface deleteHistoryCallback = new DeleteHistoryCallback();
                 new DeleteHistory(WidgetProvider.historyItems.get(viewIndex).dbID, viewIndex, mContext, deleteHistoryCallback);
-            }
-            else if(viewAction.equals("open")){
+            } else if (viewAction.equals("open")) {
                 new OpenFile(WidgetProvider.historyItems.get(viewIndex), mContext);
             }
         } else if (intent.getAction().equals("Refresh")) {
-            onUpdate(mContext, mAppWidgetManager,mAppWidgetIds);
+            getData();
         }
         super.onReceive(context, intent);
     }
@@ -132,27 +135,36 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         final int N = appWidgetIds.length;
         mAppWidgetIds = appWidgetIds;
-        mContext=context;
-        mAppWidgetManager=appWidgetManager;
-        SharedPreferences mPrefs = context.getSharedPreferences(mContext.getPackageName(),
-                Context.MODE_PRIVATE);
-        views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        mContext = context;
+        mAppWidgetManager = appWidgetManager;
+
+
+        if (views == null) {
+            views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+        }
 
         views.setViewVisibility(R.id.progressBar, View.VISIBLE);
-        views.setProgressBar(R.id.progressBar,0,0,true);
+        views.setProgressBar(R.id.progressBar, 0, 0, true);
 
+        getData();
+
+    }
+
+    public void getData() {
+        SharedPreferences mPrefs = mContext.getSharedPreferences(mContext.getPackageName(),
+                Context.MODE_PRIVATE);
         String email = mPrefs.getString("email", "");
-        WidgetGetCallback widgetGetCallback = new WidgetGetCallback();
-        new UpdateHistoryListview(20, email, null, null,null,widgetGetCallback );
-        // Perform this loop procedure for each App Widget that belongs to this provider
-
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Updating widget.");
+        widgetGetCallback = new WidgetGetCallback();
+        updateHistoryListview = new UpdateHistoryListview(10, email, null, null, null, widgetGetCallback);
     }
 
     public static class WidgetGetCallback implements HistoryGetCallbackInterface {
         @Override
         public void callBack(ArrayList<HistoryItem> historyItems) {
-            WidgetProvider.historyItems=historyItems;
-            updateWidget();
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Updating widget." + String.valueOf(historyItems.size()));
+            WidgetProvider.historyItems = historyItems;
+            WidgetProvider.updateWidget();
 
         }
 
@@ -161,7 +173,8 @@ public class WidgetProvider extends AppWidgetProvider {
 
         }
     }
-    public static class DeleteHistoryCallback implements  HistoryGetCallbackInterface{
+
+    public static class DeleteHistoryCallback implements HistoryGetCallbackInterface {
         @Override
         public void callBack(ArrayList<HistoryItem> historyItems) {
 

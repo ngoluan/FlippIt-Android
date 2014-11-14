@@ -20,7 +20,6 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import luan.com.pass.HistoryFragment;
 import luan.com.pass.MyActivity;
 
 /**
@@ -50,7 +49,7 @@ public class DeleteHistory {
                     nameValuePairs.add(new BasicNameValuePair("email", email));
                     nameValuePairs.add(new BasicNameValuePair("id", String.valueOf(id)));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
+                    Log.i(MyActivity.TAG, getClass().getName() + ": " + "Server post: " + String.valueOf(id) + email);
                     HttpResponse response = httpclient.execute(httppost);
 
                     in = new BufferedReader(new InputStreamReader(
@@ -68,7 +67,7 @@ public class DeleteHistory {
 
             @Override
             protected void onPostExecute(String msg) {
-                Log.i(MyActivity.TAG, getClass().getName() + ": " + "Delete server message: " +msg);
+                Log.i(MyActivity.TAG, getClass().getName() + ": " + "Delete server message: " + msg);
                 callback.callBack(position);
             }
         }.execute();

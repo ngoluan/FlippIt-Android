@@ -56,6 +56,8 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
         RemoteViews row = new RemoteViews(mContext.getPackageName(), R.layout.row_history);
         String message = "";
         row.setTextViewText(R.id.dateTime, WidgetProvider.historyItems.get(i).dateTime);
+
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Drawing row " + i);
         if(WidgetProvider.historyItems.get(i).type.equals("text")){
             message = WidgetProvider.historyItems.get(i).message;
             row.setViewVisibility(R.id.open, View.GONE);

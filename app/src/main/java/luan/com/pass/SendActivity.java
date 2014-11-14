@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -115,12 +116,48 @@ public class SendActivity extends Activity {
                     SharedPreferences.Editor editor = mPrefs.edit();
                     editor.putString("targetDevices", devices.toString());
                     editor.commit();
-                    customDeviceAdapter.updateEntries(deviceItems);
+
+                    createListView();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
             }
         }.execute();
+    }
+
+    static  void createListView() {
+        JSONArray devices = getStoredDevices();
+        if (devices.length() == 0) {
+            getDevices();
+            return;
+        }
+        try {
+            deviceItems.clear();
+            for (int i = 0; i < devices.length(); i++) {
+                JSONObject device = devices.getJSONObject(i);
+                if (!device.getString("targetID").equals(MyActivity.regid)) {
+                    deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
+                }
+            }
+            Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Devices received: " + String.valueOf(deviceItems.size()));
+            deviceItems.add(0, new DeviceItem("cloud", "cloud", "cloud"));
+            customDeviceAdapter.updateEntries(deviceItems);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static JSONArray getStoredDevices() {
+
+        String targetDevicesString = mPrefs.getString("targetDevices", "");
+        Log.d(TAG, targetDevicesString);
+        JSONArray deviceArray = new JSONArray();
+        try {
+            deviceArray = new JSONArray(targetDevicesString);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return deviceArray;
     }
 
     @Override
@@ -158,7 +195,7 @@ public class SendActivity extends Activity {
         customDeviceAdapter = new CustomDeviceAdapter(mContext);
         deviceGrid.setAdapter(customDeviceAdapter);
 
-        Button refreshButton = (Button) dialog.findViewById(R.id.refreshDialog);
+        ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);
         refreshButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,24 +218,6 @@ public class SendActivity extends Activity {
         });
         setContentView(R.layout.activity_send);
         createListView();
-    }
-
-    private void createListView() {
-        JSONArray devices = getStoredDevices();
-        if (devices.length() == 0) {
-            return;
-        }
-        try {
-            deviceItems.clear();
-            for (int i = 0; i < devices.length(); i++) {
-                JSONObject device = devices.getJSONObject(i);
-                deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
-            }
-            deviceItems.add(0, new DeviceItem("cloud", "cloud", "cloud"));
-            customDeviceAdapter.updateEntries(deviceItems);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
     }
 
     void handleSendText(Intent intent, final String email) {
@@ -490,19 +509,6 @@ public class SendActivity extends Activity {
             }
         }.execute();
 
-    }
-
-    public JSONArray getStoredDevices() {
-
-        String targetDevicesString = mPrefs.getString("targetDevices", "");
-        Log.d(TAG, targetDevicesString);
-        JSONArray deviceArray = new JSONArray();
-        try {
-            deviceArray = new JSONArray(targetDevicesString);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return deviceArray;
     }
 
     @Override
