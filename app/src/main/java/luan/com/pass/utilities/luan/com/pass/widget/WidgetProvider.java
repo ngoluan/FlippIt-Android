@@ -105,7 +105,7 @@ public class WidgetProvider extends AppWidgetProvider {
     public void onReceive(Context context, Intent intent) {
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received intent action:" + intent.getAction());
-
+        mContext = context;
         if (intent.getAction().equals("row_action")) {
 
             int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,

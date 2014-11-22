@@ -4,6 +4,8 @@ package luan.com.pass;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +31,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import luan.com.pass.utilities.HistoryGetCallbackInterface;
 import luan.com.pass.utilities.SendFileNotificationInterface;
@@ -66,7 +71,58 @@ public class HistoryFragment extends Fragment {
         HistoryGetCallback historyCallBack = new HistoryGetCallback();
         new UpdateHistoryListview(totalLoad, email, progressBar, null, historyCallBack, null);
     }
+    static public void getFolderSize(final String email){
+        new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... params) {
 
+                return postData();
+            }
+
+            public String postData() {
+                String line = "";
+                ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
+                BufferedReader in = null;
+
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/server/getFolderSize_v1.php");
+
+                try {
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                    nameValuePairs.add(new BasicNameValuePair("email", email));
+
+                    nameValuePairs.add(new BasicNameValuePair("total", String.valueOf(totalLoad)));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    HttpResponse response = httpclient.execute(httppost);
+
+                    in = new BufferedReader(new InputStreamReader(
+                            response.getEntity().getContent()));
+
+                    line = in.readLine();
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+
+                }
+                return line;
+            }
+            @Override
+            protected void onPostExecute(String response) {
+                Log.i(MyActivity.TAG, getClass().getName() + ": " + "Folder size: " + String.valueOf(response));
+
+                try {
+                    JSONObject content = new JSONObject(response);
+                    folderSize = content.getInt("size");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }.execute(email);
+    }
 
     static public void deleteHistoryAll() {
         new AsyncTask<String, Integer, String>() {
