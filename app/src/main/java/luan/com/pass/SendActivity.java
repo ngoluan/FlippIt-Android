@@ -47,6 +47,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import luan.com.pass.utilities.OnTaskCompleted;
+
 
 public class SendActivity extends Activity {
     static final String TAG = "luan.com.pass";
@@ -59,6 +61,7 @@ public class SendActivity extends Activity {
     static NotificationCompat.Builder mBuilder = null;
     static Context mContext = null;
     static String regID = null;
+    static int folderLimit = 0;
     GridView deviceGrid = null;
 
     static public void getDevices() {
@@ -212,7 +215,7 @@ public class SendActivity extends Activity {
                     } else {
                         handleSendFile(intent, email); // Handle single image being sent
                     }
-
+                    finish();
                 }
             }
         });
@@ -328,7 +331,6 @@ public class SendActivity extends Activity {
                         String twoHyphens = "--";
                         String boundary = "*****";
                         URL connectURL = new URL("http://local-motion.ca/pass/upload.php");
-                        Log.d(TAG, file.getName());
 
                         // Open a HTTP connection to the URL
                         HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
@@ -449,7 +451,7 @@ public class SendActivity extends Activity {
                     mBuilder.setContentText("Send complete")
                             .setProgress(0, 0, false);
                     mNotificationManager.notify(1, mBuilder.build());
-                    finish();
+
                 }
 
                 protected void onProgressUpdate(Integer... progress) {
@@ -528,5 +530,15 @@ public class SendActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+}
+
+class FolderSizeCallback implements OnTaskCompleted {
+    @Override
+    public void onTaskCompleted(int folderSize, Context context) {
+        if (folderSize > 10 * 1024) {
+            int limit = folderSize / (10 * 1024) * 100;
+            SendActivity.folderLimit = limit;
+        }
     }
 }

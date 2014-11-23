@@ -120,7 +120,6 @@ public class MyActivity extends ActionBarActivity {
             gcm = GoogleCloudMessaging.getInstance(this);
 
             regid = getRegistrationId(mContext);
-            Log.d(TAG, "test1" + regid);
             if (regid.isEmpty() || regid.equals("")) {
 
                 registerInBackground();
