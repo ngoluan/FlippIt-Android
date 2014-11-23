@@ -275,7 +275,7 @@ public class SendActivity extends Activity {
 
                 @Override
                 protected void onPostExecute(String msg) {
-                    finish();
+
                 }
             }.execute();
         }
