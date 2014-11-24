@@ -115,7 +115,6 @@ public class MyActivity extends ActionBarActivity {
         gcm = GoogleCloudMessaging.getInstance(mContext);
         setContentView(R.layout.activity_my);
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         String email = mPrefs.getString("email", "");
 
         if (checkPlayServices()) {

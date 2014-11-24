@@ -149,7 +149,7 @@ public class SendActivity extends Activity {
             customDeviceAdapter.updateEntries(deviceItems);
 
 
-            FancyCoverFlowSampleAdapter fancyCoverFlowSampleAdapter = new FancyCoverFlowSampleAdapter(mContext);
+            FancyCoverFlowSampleAdapter fancyCoverFlowSampleAdapter = new FancyCoverFlowSampleAdapter();
             fancyCoverFlow.setAdapter(fancyCoverFlowSampleAdapter);
             fancyCoverFlow.setUnselectedAlpha(1.0f);
             fancyCoverFlow.setUnselectedSaturation(0.0f);

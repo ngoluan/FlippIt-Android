@@ -44,7 +44,7 @@
     <at.technikum.mti.fancycoverflow.FancyCoverFlow
         android:id="@+id/fancyCoverFlow"
         android:layout_width="match_parent"
-        android:layout_height="100dp" />
+        android:layout_height="wrap_content" />
 
     <GridView
         android:id="@+id/gridView"
@@ -53,7 +53,8 @@
         android:layout_marginBottom="8dp"
         android:columnWidth="100dp"
         android:numColumns="2"
-        android:theme="@style/AppTheme" />
+        android:theme="@style/AppTheme"
+        android:visibility="invisible" />
 
     <LinearLayout
         android:layout_width="fill_parent"
