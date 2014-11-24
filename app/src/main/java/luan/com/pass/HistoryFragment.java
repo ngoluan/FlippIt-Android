@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -105,7 +104,8 @@ public class HistoryFragment extends Fragment {
             }
         }.execute();
     }
-    static public void animateDelete(){
+
+    static public void animateDelete() {
         final Animation animation = AnimationUtils.loadAnimation(MyActivity.mContext,
                 R.anim.abc_slide_out_top);
         animation.setAnimationListener(new Animation.AnimationListener() {
@@ -134,7 +134,7 @@ public class HistoryFragment extends Fragment {
 
         mView = inflater.inflate(R.layout.fragment_history, container,
                 false);
-        progressBar = (ProgressBar)mView.findViewById(R.id.progressBar);
+        progressBar = (ProgressBar) mView.findViewById(R.id.progressBar);
         historyList = (ListView) mView.findViewById(R.id.listView);
 
         customHistoryAdapter = new CustomHistoryAdapter(MyActivity.mContext);
@@ -157,16 +157,14 @@ public class HistoryFragment extends Fragment {
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
 
-                if(firstVisibleItem+visibleItemCount == totalItemCount && totalItemCount>1)
-                {
-                    if(flagLoading == false)
-                    {
-                        if(lastHistoryTotal==historyItems.size()){
+                if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 1) {
+                    if (flagLoading == false) {
+                        if (lastHistoryTotal == historyItems.size()) {
                             return;
                         }
-                        lastHistoryTotal=historyItems.size();
+                        lastHistoryTotal = historyItems.size();
                         flagLoading = true;
-                        totalLoad+=20;
+                        totalLoad += 20;
                         createListView(totalLoad);
                     }
                 }
@@ -176,8 +174,8 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onTaskCompleted(int folderSize, Context context) {
                 if (folderSize > 10 * 1024) {
-                    int limit = folderSize / (10 * 1024) * 100;
-                    Log.i(MyActivity.TAG, MyActivity.mContext.getClass().getName() + ": " + "Space limit: " + String.valueOf(folderSize));
+                    int limit = (folderSize / (10 * 1024) * 100);
+
                     Toast.makeText(context, "You have reached " + String.valueOf(limit) + "% of your space. Consider deleting some messages.", Toast.LENGTH_LONG).show();
                 }
             }
@@ -187,24 +185,26 @@ public class HistoryFragment extends Fragment {
         // Inflate the layout for this fragment
         return mView;
     }
-    public void animateUpdateListview(){
+
+    public void animateUpdateListview() {
 
     }
 
     public static class HistoryGetCallback implements HistoryGetCallbackInterface {
-    @Override
-    public void callBack(ArrayList<HistoryItem> historyItems) {
-        HistoryFragment.flagLoading =false;
-        HistoryFragment.historyItems=historyItems;
-        HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
+        @Override
+        public void callBack(ArrayList<HistoryItem> historyItems) {
+            HistoryFragment.flagLoading = false;
+            HistoryFragment.historyItems = historyItems;
+            HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
+        }
+
+        @Override
+        public void callBack(int i) {
+
+        }
     }
 
-    @Override
-    public void callBack(int i) {
-
-    }
-}
-    public static class DeleteHistoryCallback implements  HistoryGetCallbackInterface{
+    public static class DeleteHistoryCallback implements HistoryGetCallbackInterface {
         @Override
         public void callBack(ArrayList<HistoryItem> historyItems) {
 

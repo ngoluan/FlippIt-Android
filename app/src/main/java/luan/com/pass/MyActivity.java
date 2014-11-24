@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -113,7 +114,8 @@ public class MyActivity extends ActionBarActivity {
                 Context.MODE_PRIVATE);
         gcm = GoogleCloudMessaging.getInstance(mContext);
         setContentView(R.layout.activity_my);
-
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
         String email = mPrefs.getString("email", "");
 
         if (checkPlayServices()) {

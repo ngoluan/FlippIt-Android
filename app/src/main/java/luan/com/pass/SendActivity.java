@@ -47,6 +47,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import at.technikum.mti.fancycoverflow.FancyCoverFlow;
 import luan.com.pass.utilities.OnTaskCompleted;
 
 
@@ -62,6 +63,7 @@ public class SendActivity extends Activity {
     static Context mContext = null;
     static String regID = null;
     static int folderLimit = 0;
+    static FancyCoverFlow fancyCoverFlow;
     GridView deviceGrid = null;
 
     static public void getDevices() {
@@ -145,6 +147,19 @@ public class SendActivity extends Activity {
             Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Devices received: " + String.valueOf(deviceItems.size()));
             deviceItems.add(0, new DeviceItem("cloud", "cloud", "cloud"));
             customDeviceAdapter.updateEntries(deviceItems);
+
+
+            FancyCoverFlowSampleAdapter fancyCoverFlowSampleAdapter = new FancyCoverFlowSampleAdapter(mContext);
+            fancyCoverFlow.setAdapter(fancyCoverFlowSampleAdapter);
+            fancyCoverFlow.setUnselectedAlpha(1.0f);
+            fancyCoverFlow.setUnselectedSaturation(0.0f);
+            fancyCoverFlow.setUnselectedScale(0.5f);
+            fancyCoverFlow.setSpacing(50);
+            fancyCoverFlow.setMaxRotation(0);
+            fancyCoverFlow.setScaleDownGravity(0.2f);
+            fancyCoverFlow.setActionDistance(FancyCoverFlow.ACTION_DISTANCE_AUTO);
+            fancyCoverFlowSampleAdapter.updateEntries(deviceItems);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -195,6 +210,8 @@ public class SendActivity extends Activity {
         targetType = mPrefs.getString("targetType", "");
 
         deviceGrid = (GridView) dialog.findViewById(R.id.gridView);
+
+        fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
         customDeviceAdapter = new CustomDeviceAdapter(mContext);
         deviceGrid.setAdapter(customDeviceAdapter);
 
@@ -243,11 +260,7 @@ public class SendActivity extends Activity {
 
                     HttpClient httpclient = new DefaultHttpClient();
                     HttpPost httppost = null;
-                    if (targetType.equals("chrome")) {
-                        httppost = new HttpPost("http://local-motion.ca/pass/sendChrome.php");
-                    } else if (targetType.equals("android")) {
-                        httppost = new HttpPost("http://local-motion.ca/pass/sendAndroid.php");
-                    }
+                    httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
 
                     try {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -255,7 +268,7 @@ public class SendActivity extends Activity {
                         nameValuePairs.add(new BasicNameValuePair("email", email));
                         nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
                         nameValuePairs.add(new BasicNameValuePair("message", sharedText));
-                        nameValuePairs.add(new BasicNameValuePair("type", targetType));
+                        nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
                         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                         HttpResponse response = httpclient.execute(httppost);
@@ -397,7 +410,6 @@ public class SendActivity extends Activity {
 
                         dos.flush();
 
-                        Log.d(TAG, "File Sent, Response: " + String.valueOf(conn.getResponseCode()));
 
                         InputStream is = conn.getInputStream();
 
@@ -409,24 +421,21 @@ public class SendActivity extends Activity {
                             b.append((char) ch);
                         }
                         String s = b.toString();
-                        Log.d("Response", s);
                         dos.close();
 
+                        Log.i(MyActivity.TAG, MyActivity.mContext.getClass().getName() + ": " + "File uploaded. Filename: " + String.valueOf(s));
+                        Log.i(MyActivity.TAG, MyActivity.mContext.getClass().getName() + ": " + "Ready to send to targetID: " + SendActivity.targetID);
 
                         HttpClient httpclient = new DefaultHttpClient();
                         HttpPost httppost = null;
-                        if (targetType.equals("chrome")) {
-                            httppost = new HttpPost("http://local-motion.ca/pass/sendChrome.php");
-                        } else if (targetType.equals("android")) {
-                            httppost = new HttpPost("http://local-motion.ca/pass/sendAndroid.php");
-                        }
+                        httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
 
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
                         nameValuePairs.add(new BasicNameValuePair("email", email));
                         nameValuePairs.add(new BasicNameValuePair("fileName", s));
                         nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
-                        nameValuePairs.add(new BasicNameValuePair("message", "android send test"));
+                        nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
                         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                         HttpResponse response = httpclient.execute(httppost);

@@ -100,7 +100,7 @@
             android:layout_alignParentBottom="true"
             android:text="Small Text"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/font_light_grey" />
+            android:textColor="@color/dark_grey" />
 
     </RelativeLayout>
 </LinearLayout>
