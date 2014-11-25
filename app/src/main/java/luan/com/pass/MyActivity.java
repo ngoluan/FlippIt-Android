@@ -4,8 +4,6 @@ import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -18,13 +16,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
 import org.apache.http.HttpResponse;
@@ -45,13 +40,13 @@ import java.util.List;
 
 public class MyActivity extends ActionBarActivity {
     public static final String TAG = "luan.com.pass";
-    public static final String CLASS_NAME = "";
+    public static String CLASS_NAME = "";
     static FragmentManager mFragmentManager = null;
     static SharedPreferences mPrefs = null;
     static Context mContext;
     static String regid;
-    GoogleCloudMessaging gcm;
     static String email="";
+    GoogleCloudMessaging gcm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,7 +145,7 @@ public class MyActivity extends ActionBarActivity {
                     regid = gcm.register("155379597538");
                     Log.d(TAG, "test" + regid.toString());
                     msg = "Device registered, registration ID=" + regid;
-                    GeneralUtilities.storeRegistrationId(regid);
+                    GeneralUtilities.storeRegistrationId(regid, mContext);
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                 }

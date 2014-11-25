@@ -1,5 +1,16 @@
 package luan.com.pass;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.util.Log;
+import android.webkit.MimeTypeMap;
+import android.widget.Toast;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 /**
  * Created by Luan on 2014-11-24.
  */
@@ -64,15 +75,15 @@ public class GeneralUtilities {
                         PLAY_SERVICES_RESOLUTION_REQUEST).show();
             } else {
                 Toast.makeText(MyActivity.mContext, "This device is not supported.", Toast.LENGTH_SHORT).show();
-                finish();
+                //finish();
             }
             return false;
         }
         return true;
     }
 
-    static void storeRegistrationId(String regId) {
-        final SharedPreferences prefs = getSharedPreferences(MyActivity.mContext.getPackageName(),
+    static void storeRegistrationId(String regId, Context context) {
+        final SharedPreferences prefs = context.getSharedPreferences(MyActivity.mContext.getPackageName(),
                 Context.MODE_PRIVATE);
         int appVersion = getAppVersion(MyActivity.mContext);
         Log.i(MyActivity.TAG, "Saving regId on app version " + appVersion);

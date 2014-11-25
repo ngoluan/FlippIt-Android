@@ -1,9 +1,5 @@
 package luan.com.pass;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +35,7 @@ class FancyCoverFlowSampleAdapter extends FancyCoverFlowAdapter {
 
         if (reuseableView == null) {
             reuseableView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_device, viewGroup, false);
-            reuseableView.setLayoutParams(new FancyCoverFlow.LayoutParams(300, 400));
+            reuseableView.setLayoutParams(new FancyCoverFlow.LayoutParams(400, 400));
 
 
             // set value into textview
@@ -65,48 +61,8 @@ class FancyCoverFlowSampleAdapter extends FancyCoverFlowAdapter {
         } else {
             layout.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
         }
-        layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(MyActivity.TAG, String.valueOf(position));
-                String targetID = deviceItems.get(position).targetID;
-                SendActivity.targetID = targetID;
-                String targetType = deviceItems.get(position).type;
-                SharedPreferences.Editor editor = SendActivity.mPrefs.edit();
-                editor.putString("targetID", targetID);
-                editor.putString("targetType", targetType);
-                editor.commit();
-                updateEntries(deviceItems);
-            }
-        });
-        layout.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(viewGroup.getContext());
-                alertDialogBuilder.setTitle("Delete device?");
 
-// set dialog message
-                alertDialogBuilder
-                        .setCancelable(false)
-                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //Toast.makeText()
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
 
-// create alert dialog
-                AlertDialog alertDialog = alertDialogBuilder.create();
-
-// show it
-                alertDialog.show();
-                return true;
-            }
-        });
         return reuseableView;
     }
 

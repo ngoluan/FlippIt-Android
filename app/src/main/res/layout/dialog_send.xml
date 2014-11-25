@@ -8,12 +8,16 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:background="@color/base_blue"
+        android:orientation="horizontal"
+        android:paddingBottom="4dp"
+        android:paddingTop="4dp">
 
         <ImageView
             android:id="@+id/imageView2"
             android:layout_width="36dp"
             android:layout_height="36dp"
+            android:layout_gravity="center_vertical"
             android:src="@drawable/action_icon" />
 
         <TextView
@@ -27,7 +31,8 @@
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
 
             <ImageButton
                 android:id="@+id/refreshDialog"
@@ -37,48 +42,73 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:alpha="10"
-                android:background="@drawable/refresh_white" />
+                android:background="@drawable/refresh_blue"
+                android:src="@drawable/refresh_white" />
         </RelativeLayout>
+
     </LinearLayout>
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Type message here"
+        android:inputType="textMultiLine"
+        android:minLines="4" />
 
     <at.technikum.mti.fancycoverflow.FancyCoverFlow
         android:id="@+id/fancyCoverFlow"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="132dp" />
 
-    <GridView
-        android:id="@+id/gridView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        android:columnWidth="100dp"
-        android:numColumns="2"
-        android:theme="@style/AppTheme"
-        android:visibility="invisible" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <Button
+            android:id="@+id/upload"
+            android:layout_width="96dp"
+            android:layout_height="36dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/rounded_blue"
+            android:drawableRight="@drawable/upload_white"
+            android:text=" File"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/log"
+            android:layout_width="96dp"
+            android:layout_height="36dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/rounded_blue"
+            android:drawableRight="@drawable/history_white"
+            android:text=" Save"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/clear"
+            android:layout_width="96dp"
+            android:layout_height="36dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/rounded_blue"
+            android:drawableRight="@drawable/clear_white"
+            android:text="Clear"
+            android:textColor="@color/white" />
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <RelativeLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-            <Button
-                android:id="@+id/sendDialog"
-                android:layout_width="112dp"
-                android:layout_height="36dp"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_margin="4dp"
-                android:background="@drawable/rounded_blue"
-                android:drawableRight="@drawable/send_white"
-                android:text="Send"
-                android:textColor="@color/white" />
-        </RelativeLayout>
-
-    </LinearLayout>
-
+        android:layout_marginTop="4dp"
+        android:text="Tip: Press and hold each device to change its name or delete it."
+        android:textAppearance="?android:attr/textAppearanceSmall" />
 </LinearLayout>

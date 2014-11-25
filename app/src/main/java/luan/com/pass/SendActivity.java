@@ -19,7 +19,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 
@@ -209,11 +208,11 @@ public class SendActivity extends Activity {
         targetID = mPrefs.getString("targetID", "");
         targetType = mPrefs.getString("targetType", "");
 
-        deviceGrid = (GridView) dialog.findViewById(R.id.gridView);
+        //deviceGrid = (GridView) dialog.findViewById(R.id.gridView);
 
         fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
         customDeviceAdapter = new CustomDeviceAdapter(mContext);
-        deviceGrid.setAdapter(customDeviceAdapter);
+        //deviceGrid.setAdapter(customDeviceAdapter);
 
         ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);
         refreshButton.setOnClickListener(new View.OnClickListener() {
@@ -222,7 +221,7 @@ public class SendActivity extends Activity {
                 getDevices();
             }
         });
-        Button sendButton = (Button) dialog.findViewById(R.id.sendDialog);
+/*        Button sendButton = (Button) dialog.findViewById(R.id.sendDialog);
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -235,7 +234,7 @@ public class SendActivity extends Activity {
                     finish();
                 }
             }
-        });
+        });*/
         setContentView(R.layout.activity_send);
         createListView();
     }

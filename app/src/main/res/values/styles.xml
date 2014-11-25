@@ -8,6 +8,11 @@
 
         <item name="android:windowBackground">@color/base_grey</item>
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarAppTheme</item>
+        <item name="android:actionButtonStyle">@style/MyActionButtonStyle</item>
+    </style>
+
+    <style name="MyActionButtonStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:padding">8dip</item>
     </style>
 
     <style name="ThemeDialogCustom" parent="android:Theme.Holo.Dialog.NoActionBar">
