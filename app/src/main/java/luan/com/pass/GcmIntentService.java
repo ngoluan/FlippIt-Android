@@ -107,7 +107,7 @@ public class GcmIntentService extends IntentService {
             msg = data.getString("message");
             msg = java.net.URLDecoder.decode(msg, "UTF-8");
             fileName = data.getString("fileName");
-            String type = MyActivity.typeOfMessage(fileName);
+            String type = GeneralUtilities.typeOfMessage(fileName);
 
             if (type.equals("image")) {
                 imgNotification(fileName, msg);

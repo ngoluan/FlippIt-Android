@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import luan.com.pass.GeneralUtilities;
 import luan.com.pass.HistoryFragment;
 import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
@@ -85,7 +86,7 @@ public class UpdateHistoryListview
                                     item.getString("targetID"),
                                     item.getString("fileName"),
                                     item.getInt("id")));
-                            String type = MyActivity.typeOfMessage(item.getString("fileName"));
+                            String type = GeneralUtilities.typeOfMessage(item.getString("fileName"));
 
                             if (type.equals("image")) {
                                 Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(

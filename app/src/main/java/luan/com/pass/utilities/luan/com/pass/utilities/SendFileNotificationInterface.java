@@ -11,7 +11,7 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import luan.com.pass.GcmIntentService;
+import luan.com.pass.GeneralUtilities;
 import luan.com.pass.MyActivity;
 import luan.com.pass.R;
 import luan.com.pass.UpdateHistory;
@@ -27,7 +27,7 @@ public class SendFileNotificationInterface implements MyActivity.Callback {
 
     @Override
     public void callBack(String fileName, String msg, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder) {
-        String mimeType = MyActivity.getMimeType(fileName);
+        String mimeType = GeneralUtilities.getMimeType(fileName);
         String path = "file://" + Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS) + "/" + fileName;
         Uri hacked_uri = Uri.parse(path);

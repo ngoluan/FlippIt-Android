@@ -25,7 +25,7 @@ public class HistoryItem {
         this.targetID = targetID;
         this.fileName = fileName;
         this.dbID = id;
-        this.type = MyActivity.typeOfMessage(this.fileName);
+        this.type = GeneralUtilities.typeOfMessage(this.fileName);
     }
 
 }

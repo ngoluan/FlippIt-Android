@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 
+import luan.com.pass.GeneralUtilities;
 import luan.com.pass.HistoryItem;
-import luan.com.pass.MyActivity;
 
 /**
  * Created by Luan on 2014-11-13.
@@ -22,7 +22,7 @@ public class ShareItem {
             String fileName = historyItem.fileName;
             Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-            String mimeType = MyActivity.getMimeType(fileName);
+            String mimeType = GeneralUtilities.getMimeType(fileName);
 
             shareIntent.setAction(Intent.ACTION_SEND);
             shareIntent.putExtra(Intent.EXTRA_STREAM, hacked_uri);

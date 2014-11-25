@@ -45,63 +45,13 @@ import java.util.List;
 
 public class MyActivity extends ActionBarActivity {
     public static final String TAG = "luan.com.pass";
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    public static final String CLASS_NAME = "";
     static FragmentManager mFragmentManager = null;
     static SharedPreferences mPrefs = null;
     static Context mContext;
     static String regid;
     GoogleCloudMessaging gcm;
-
-    private static int getAppVersion(Context context) {
-        try {
-            PackageInfo packageInfo = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode;
-        } catch (PackageManager.NameNotFoundException e) {
-            // should never happen
-            throw new RuntimeException("Could not get package name: " + e);
-        }
-    }
-
-    static public String typeOfMessage(String fileName) {
-        String type = null;
-        fileName = fileName.toLowerCase();
-        if (fileName.contains(".jpg") == true || fileName.contains(".jpeg") == true || fileName.contains(".gif") == true || fileName.contains(".png") == true) {
-            type = "image";
-        } else if (!fileName.equals("")) {
-            type = "file";
-        } else {
-            type = "text";
-        }
-        Log.i(MyActivity.TAG, "Message type: " + type);
-        return type;
-    }
-
-
-    static public String getMimeType(String fileName) {
-        MimeTypeMap myMime = MimeTypeMap.getSingleton();
-        String mimeType = myMime.getMimeTypeFromExtension(fileExt(fileName).substring(1));
-        return mimeType;
-    }
-
-    static public String fileExt(String url) {
-        if (url.indexOf("?") > -1) {
-            url = url.substring(0, url.indexOf("?"));
-        }
-        if (url.lastIndexOf(".") == -1) {
-            return null;
-        } else {
-            String ext = url.substring(url.lastIndexOf("."));
-            if (ext.indexOf("%") > -1) {
-                ext = ext.substring(0, ext.indexOf("%"));
-            }
-            if (ext.indexOf("/") > -1) {
-                ext = ext.substring(0, ext.indexOf("/"));
-            }
-            return ext.toLowerCase();
-
-        }
-    }
+    static String email="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,12 +62,15 @@ public class MyActivity extends ActionBarActivity {
         mFragmentManager = getSupportFragmentManager();
         mPrefs = getSharedPreferences(mContext.getPackageName(),
                 Context.MODE_PRIVATE);
-        gcm = GoogleCloudMessaging.getInstance(mContext);
+
         setContentView(R.layout.activity_my);
         ActionBar actionBar = getSupportActionBar();
         String email = mPrefs.getString("email", "");
 
-        if (checkPlayServices()) {
+        CLASS_NAME= mContext.getClass().getName();
+
+        gcm = GoogleCloudMessaging.getInstance(mContext);
+        if (GeneralUtilities.checkPlayServices(this)) {
             gcm = GoogleCloudMessaging.getInstance(this);
 
             regid = getRegistrationId(mContext);
@@ -126,7 +79,7 @@ public class MyActivity extends ActionBarActivity {
                 registerInBackground();
             }
         } else {
-            Log.i(TAG, "No valid Google Play Services APK found.");
+            Log.i(TAG, mContext.getClass().getName() + ": " + "No valid Google Play Services APK found.");
         }
 
         if (savedInstanceState == null) {
@@ -148,33 +101,6 @@ public class MyActivity extends ActionBarActivity {
 
     }
 
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
-                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
-            } else {
-                Toast.makeText(mContext, "This device is not supported.", Toast.LENGTH_SHORT).show();
-                finish();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    private void storeRegistrationId(String regId) {
-        final SharedPreferences prefs = getSharedPreferences(mContext.getPackageName(),
-                Context.MODE_PRIVATE);
-        int appVersion = getAppVersion(mContext);
-        Log.i(TAG, "Saving regId on app version " + appVersion);
-        Log.i(TAG, "Saving regId on app version " + regId);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString("registration_id", regId);
-        editor.putInt("appVersion", appVersion);
-        editor.commit();
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -194,7 +120,7 @@ public class MyActivity extends ActionBarActivity {
         // since the existing regID is not guaranteed to work with the new
         // app version.
         int registeredVersion = prefs.getInt("appVersion", Integer.MIN_VALUE);
-        int currentVersion = getAppVersion(context);
+        int currentVersion = GeneralUtilities.getAppVersion(context);
         if (registeredVersion != currentVersion) {
             Log.i(TAG, "App version changed.");
             return "";
@@ -224,7 +150,7 @@ public class MyActivity extends ActionBarActivity {
                     regid = gcm.register("155379597538");
                     Log.d(TAG, "test" + regid.toString());
                     msg = "Device registered, registration ID=" + regid;
-                    storeRegistrationId(regid);
+                    GeneralUtilities.storeRegistrationId(regid);
                 } catch (IOException ex) {
                     msg = "Error :" + ex.getMessage();
                 }
@@ -259,7 +185,7 @@ public class MyActivity extends ActionBarActivity {
 
                 final SharedPreferences prefs = getSharedPreferences(mContext.getPackageName(),
                         Context.MODE_PRIVATE);
-                int appVersion = getAppVersion(mContext);
+                int appVersion = GeneralUtilities.getAppVersion(mContext);
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putString("deviceName", deviceName.getText().toString());
                 editor.commit();

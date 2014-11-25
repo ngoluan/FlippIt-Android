@@ -12,6 +12,7 @@ import android.util.Log;
 import java.io.File;
 
 import luan.com.pass.DownloadFiles;
+import luan.com.pass.GeneralUtilities;
 import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
 
@@ -23,7 +24,7 @@ public class OpenFile {
             String fileName = historyItem.fileName;
             Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-            String mimeType = MyActivity.getMimeType(fileName);
+            String mimeType = GeneralUtilities.getMimeType(fileName);
         SharedPreferences mPrefs = mContext.getSharedPreferences(mContext.getPackageName(),
                 Context.MODE_PRIVATE);
             File file = new File(Environment.getExternalStoragePublicDirectory(

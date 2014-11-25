@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 
+import luan.com.pass.GeneralUtilities;
 import luan.com.pass.HistoryItem;
-import luan.com.pass.MyActivity;
 import luan.com.pass.SendActivity;
 
 /**
@@ -23,7 +23,7 @@ public class SendItem {
             String fileName = historyItem.fileName;
             Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-            String mimeType = MyActivity.getMimeType(fileName);
+            String mimeType = GeneralUtilities.getMimeType(fileName);
 
             sendIntent.setAction(Intent.ACTION_SEND);
             sendIntent.putExtra(Intent.EXTRA_STREAM, hacked_uri);
