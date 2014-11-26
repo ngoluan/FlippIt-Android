@@ -3,11 +3,14 @@ package luan.com.pass;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,8 +22,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.widget.GridView;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.ipaulpro.afilechooser.utils.FileUtils;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -47,27 +56,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import at.technikum.mti.fancycoverflow.FancyCoverFlow;
+import luan.com.pass.utilities.DecodeSampledBitmapFromPath;
 import luan.com.pass.utilities.OnTaskCompleted;
 
 
 public class SendActivity extends Activity {
     static final String TAG = "luan.com.pass";
+    private static final int REQUEST_CODE = 6384;
+    //objects
     static public NotificationManager mNotificationManager;
-    static CustomDeviceAdapter customDeviceAdapter = null;
+    static SharedPreferences mPrefs = null;
+    static NotificationCompat.Builder mBuilder = null;
+    static FancyCoverFlow fancyCoverFlow;
+    static Context mContext = null;
+    static ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
+    static Dialog dialog = null;
+    static Intent mIntent = null;
+    static String email = "";
+    static String regID = null;
     static String targetID = null;
     static String targetType = null;
-    static SharedPreferences mPrefs = null;
-    static ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
-    static NotificationCompat.Builder mBuilder = null;
-    static Context mContext = null;
-    static String regID = null;
     static int folderLimit = 0;
-    static FancyCoverFlow fancyCoverFlow;
-    GridView deviceGrid = null;
+    static String fileName = "";
+    static String filePath = "";
 
     static public void getDevices() {
-        final String email = mPrefs.getString("email", "");
-        regID = mPrefs.getString("registration_id", "");
         new AsyncTask<String, Integer, String>() {
             @Override
             protected String doInBackground(String... params) {
@@ -145,11 +158,9 @@ public class SendActivity extends Activity {
             }
             Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Devices received: " + String.valueOf(deviceItems.size()));
             deviceItems.add(0, new DeviceItem("cloud", "cloud", "cloud"));
-            customDeviceAdapter.updateEntries(deviceItems);
 
-
-            FancyCoverFlowSampleAdapter fancyCoverFlowSampleAdapter = new FancyCoverFlowSampleAdapter();
-            fancyCoverFlow.setAdapter(fancyCoverFlowSampleAdapter);
+            CustomDeviceAdapter customDeviceAdapter = new CustomDeviceAdapter();
+            fancyCoverFlow.setAdapter(customDeviceAdapter);
             fancyCoverFlow.setUnselectedAlpha(1.0f);
             fancyCoverFlow.setUnselectedSaturation(0.0f);
             fancyCoverFlow.setUnselectedScale(0.5f);
@@ -157,7 +168,7 @@ public class SendActivity extends Activity {
             fancyCoverFlow.setMaxRotation(0);
             fancyCoverFlow.setScaleDownGravity(0.2f);
             fancyCoverFlow.setActionDistance(FancyCoverFlow.ACTION_DISTANCE_AUTO);
-            fancyCoverFlowSampleAdapter.updateEntries(deviceItems);
+            customDeviceAdapter.updateEntries(deviceItems);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -177,69 +188,7 @@ public class SendActivity extends Activity {
         return deviceArray;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = this;
-        mPrefs = getSharedPreferences(mContext.getPackageName(),
-                Context.MODE_PRIVATE);
-        mNotificationManager = (NotificationManager)
-                this.getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder = new NotificationCompat.Builder(this);
-        final String email = mPrefs.getString("email", "");
-
-        final Intent intent = getIntent();
-        final String action = intent.getAction();
-        final String type = intent.getType();
-
-        final Dialog dialog = new Dialog(mContext, R.style.ThemeDialogCustom);
-        dialog.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.setContentView(R.layout.dialog_send);
-        dialog.show();
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-
-        targetID = mPrefs.getString("targetID", "");
-        targetType = mPrefs.getString("targetType", "");
-
-        //deviceGrid = (GridView) dialog.findViewById(R.id.gridView);
-
-        fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
-        customDeviceAdapter = new CustomDeviceAdapter(mContext);
-        //deviceGrid.setAdapter(customDeviceAdapter);
-
-        ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDevices();
-            }
-        });
-/*        Button sendButton = (Button) dialog.findViewById(R.id.sendDialog);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (Intent.ACTION_SEND.equals(action) && type != null) {
-                    if ("text/plain".equals(type)) {
-                        handleSendText(intent, email); // Handle text being sent
-                    } else {
-                        handleSendFile(intent, email); // Handle single image being sent
-                    }
-                    finish();
-                }
-            }
-        });*/
-        setContentView(R.layout.activity_send);
-        createListView();
-    }
-
-    void handleSendText(Intent intent, final String email) {
+    static void handleSendText(Intent intent, final String email) {
         final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
         if (sharedText != null) {
             String targetID = null;
@@ -293,13 +242,72 @@ public class SendActivity extends Activity {
         }
     }
 
-    void handleSendFile(Intent intent, final String email) {
+    static void handleIntent() {
+        String type = "";
+        if (mIntent != null) {
+            type = mIntent.getType();
+            if ("text/plain".equals(type)) {
+                String sharedText = mIntent.getStringExtra(Intent.EXTRA_TEXT);
+                EditText editText = (EditText) dialog
+                        .findViewById(R.id.textMessage);
+                editText.setText(sharedText);
+            } else {
+                final Uri uri = (Uri) mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+                String[] filePathColumn = {MediaStore.MediaColumns.DATA};
+                String scheme = uri.getScheme();
+                String filePath = null;
+                if (scheme.equals("content")) {
+                    Cursor cursor = mContext.getContentResolver().query(uri, filePathColumn, null, null, null);
+                    cursor.moveToFirst(); // <--no more NPE
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    filePath = cursor.getString(columnIndex);
+                    cursor.close();
+                    setImageView(filePath);
+                    setFileTextView(filePath);
+                } else if (scheme.equals("file")) {
+                    filePath = uri.getPath();
+                    setFileTextView(filePath);
+                } else {
+                    Log.d(TAG, "Failed to load URI " + mIntent.toString());
+                }
+            }
+        }
+    }
+
+    static void setImageView(String path) {
+        ImageView imageView = (ImageView) dialog
+                .findViewById(R.id.uploadIimage);
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap image = DecodeSampledBitmapFromPath.decodeSampledBitmapFromPath(path, 1000, 1000, options);
+        imageView.setImageBitmap(image);
+        imageView.setVisibility(View.VISIBLE);
+    }
+
+    static void setFileTextView(String path) {
+        TextView textView = (TextView) dialog
+                .findViewById(R.id.uploadFile);
+        textView.setText(path);
+        textView.setVisibility(View.VISIBLE);
+    }
+
+    static void Send() {
+
+/*        if ("text/plain".equals(type)) {
+            handleSendText(intent, email); // Handle text being sent
+        } else {
+            handleSendFile(intent, email); // Handle single image being sent
+        }*/
+
+    }
+
+    static void handleSendFile(Intent intent, final String email) {
         final Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
         String[] filePathColumn = {MediaStore.MediaColumns.DATA};
         String scheme = imageUri.getScheme();
         String filePath = null;
         if (scheme.equals("content")) {
-            Cursor cursor = getContentResolver().query(imageUri, filePathColumn, null, null, null);
+            Cursor cursor = mContext.getContentResolver().query(imageUri, filePathColumn, null, null, null);
             cursor.moveToFirst(); // <--no more NPE
 
             int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
@@ -470,6 +478,94 @@ public class SendActivity extends Activity {
             }.execute();
 
         }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = this;
+        mPrefs = getSharedPreferences(mContext.getPackageName(),
+                Context.MODE_PRIVATE);
+        mNotificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(this);
+        email = mPrefs.getString("email", "");
+        regID = mPrefs.getString("registration_id", "");
+        mIntent = getIntent();
+        dialog = new Dialog(mContext, R.style.ThemeDialogCustom);
+        dialog.requestWindowFeature(Window.FEATURE_ACTION_BAR);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        dialog.setContentView(R.layout.dialog_send);
+        dialog.show();
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        handleIntent();
+        targetID = mPrefs.getString("targetID", "");
+        targetType = mPrefs.getString("targetType", "");
+
+        fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
+
+        ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDevices();
+            }
+        });
+        Button fileButton = (Button) dialog.findViewById(R.id.file);
+        fileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChooser();
+            }
+        });
+        setContentView(R.layout.activity_send);
+        createListView();
+    }
+
+    private void showChooser() {
+        // Use the GET_CONTENT intent from the utility class
+        Intent target = FileUtils.createGetContentIntent();
+        // Create the chooser Intent
+        Intent intent = Intent.createChooser(
+                target, "Choose your file");
+        try {
+            startActivityForResult(intent, REQUEST_CODE);
+        } catch (ActivityNotFoundException e) {
+            // The reason for the existence of aFileChooser
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        final Uri uri = data.getData();
+                        try {
+                            // Get the file path from the URI
+                            final String path = FileUtils.getPath(this, uri);
+                            Toast.makeText(mContext,
+                                    "File Selected: " + path, Toast.LENGTH_LONG).show();
+                            String type = GeneralUtilities.getMimeType(path);
+                            if (type.contains("image") == true) {
+                                setImageView(path);
+                                setFileTextView(filePath);
+                            }
+                        } catch (Exception e) {
+                            Log.e("FileSelectorTestActivity", "File select error", e);
+                        }
+                    }
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     void deleteDevice(int position, final String email) {

@@ -83,8 +83,9 @@ public class CustomHistoryAdapter extends BaseAdapter {
                 if (HistoryFragment.historyItems.get(position).bitmap == null) {
                     messageText.setText("Image transfer: " + HistoryFragment.historyItems.get(position).fileName +"\nImage not available on device. Tap to download.");
                 }
-                imageView.getLayoutParams().height = 300;//doesnt work
-
+                imageView.setImageBitmap(HistoryFragment.historyItems.get(position).bitmap);
+                imageView.requestLayout();
+                imageView.getLayoutParams().height = 200;//doesnt work
             }
             if(!HistoryFragment.historyItems.get(position).message.equals("")){//attaches message to file or image transfer if a message exist
                 messageText.setText(messageText.getText().toString()+ "\n"+ HistoryFragment.historyItems.get(position).message)   ;
@@ -99,7 +100,7 @@ public class CustomHistoryAdapter extends BaseAdapter {
             messageText.setVisibility(View.GONE);
         }
 
-        imageView.setImageBitmap(HistoryFragment.historyItems.get(position).bitmap);
+
         copyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

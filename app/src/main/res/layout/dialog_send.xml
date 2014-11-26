@@ -48,8 +48,14 @@
 
     </LinearLayout>
 
+    <at.technikum.mti.fancycoverflow.FancyCoverFlow
+        android:id="@+id/fancyCoverFlow"
+        android:layout_width="match_parent"
+        android:layout_height="132dp" />
+
+
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/textMessage"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -57,18 +63,25 @@
         android:inputType="textMultiLine"
         android:minLines="4" />
 
-    <at.technikum.mti.fancycoverflow.FancyCoverFlow
-        android:id="@+id/fancyCoverFlow"
-        android:layout_width="match_parent"
-        android:layout_height="132dp" />
+    <TextView
+        android:id="@+id/uploadFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New Text"
+        android:visibility="gone" />
 
+    <ImageView
+        android:id="@+id/uploadIimage"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
         <Button
-            android:id="@+id/upload"
+            android:id="@+id/file"
             android:layout_width="96dp"
             android:layout_height="36dp"
             android:layout_alignParentLeft="true"
