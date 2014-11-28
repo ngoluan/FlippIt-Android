@@ -1,6 +1,7 @@
 package luan.com.pass;
 
 import android.app.Activity;
+import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
@@ -69,6 +70,7 @@ public class SendActivity extends Activity {
     static NotificationCompat.Builder mBuilder = null;
     static FancyCoverFlow fancyCoverFlow;
     static Context mContext = null;
+    static Application mApplication = null;
     static ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
     static Dialog dialog = null;
     static Intent mIntent = null;
@@ -77,8 +79,9 @@ public class SendActivity extends Activity {
     static String targetID = null;
     static String targetType = null;
     static int folderLimit = 0;
-    static String fileName = "";
     static String filePath = "";
+    static Boolean saveMessage = false;
+    static String message = "";
 
     static public void getDevices() {
         new AsyncTask<String, Integer, String>() {
@@ -134,7 +137,7 @@ public class SendActivity extends Activity {
                     editor.putString("targetDevices", devices.toString());
                     editor.commit();
 
-                    createListView();
+                    createCoverFlow();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -142,7 +145,7 @@ public class SendActivity extends Activity {
         }.execute();
     }
 
-    static  void createListView() {
+    static void createCoverFlow() {
         JSONArray devices = getStoredDevices();
         if (devices.length() == 0) {
             getDevices();
@@ -161,6 +164,7 @@ public class SendActivity extends Activity {
 
             CustomDeviceAdapter customDeviceAdapter = new CustomDeviceAdapter();
             fancyCoverFlow.setAdapter(customDeviceAdapter);
+
             fancyCoverFlow.setUnselectedAlpha(1.0f);
             fancyCoverFlow.setUnselectedSaturation(0.0f);
             fancyCoverFlow.setUnselectedScale(0.5f);
@@ -169,6 +173,11 @@ public class SendActivity extends Activity {
             fancyCoverFlow.setScaleDownGravity(0.2f);
             fancyCoverFlow.setActionDistance(FancyCoverFlow.ACTION_DISTANCE_AUTO);
             customDeviceAdapter.updateEntries(deviceItems);
+            for (int i = 0; i < deviceItems.size(); i++) {
+                if (deviceItems.get(i).targetID.equals(SendActivity.targetID)) {
+                    fancyCoverFlow.setSelection(i);
+                }
+            }
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -176,6 +185,8 @@ public class SendActivity extends Activity {
     }
 
     public static JSONArray getStoredDevices() {
+        targetID = mPrefs.getString("targetID", "");
+        targetType = mPrefs.getString("targetType", "");
 
         String targetDevicesString = mPrefs.getString("targetDevices", "");
         Log.d(TAG, targetDevicesString);
@@ -188,12 +199,11 @@ public class SendActivity extends Activity {
         return deviceArray;
     }
 
-    static void handleSendText(Intent intent, final String email) {
-        final String sharedText = intent.getStringExtra(Intent.EXTRA_TEXT);
+    static void handleSendText(final String email) {
+        EditText editText = (EditText) dialog
+                .findViewById(R.id.messageText);
+        final String sharedText = editText.getText().toString();
         if (sharedText != null) {
-            String targetID = null;
-            String type = null;
-
             new AsyncTask<String, Integer, String>() {
                 @Override
                 protected String doInBackground(String... params) {
@@ -212,9 +222,9 @@ public class SendActivity extends Activity {
 
                     try {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
+                        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Sending text from " + email + " to " + targetID + " which is " + targetType + " of " + sharedText);
                         nameValuePairs.add(new BasicNameValuePair("email", email));
-                        nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
+                        nameValuePairs.add(new BasicNameValuePair("targetID", targetID));
                         nameValuePairs.add(new BasicNameValuePair("message", sharedText));
                         nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
                         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
@@ -236,7 +246,7 @@ public class SendActivity extends Activity {
 
                 @Override
                 protected void onPostExecute(String msg) {
-
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Message " + msg);
                 }
             }.execute();
         }
@@ -246,26 +256,32 @@ public class SendActivity extends Activity {
         String type = "";
         if (mIntent != null) {
             type = mIntent.getType();
+            Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Type " + type);
             if ("text/plain".equals(type)) {
                 String sharedText = mIntent.getStringExtra(Intent.EXTRA_TEXT);
                 EditText editText = (EditText) dialog
-                        .findViewById(R.id.textMessage);
+                        .findViewById(R.id.messageText);
                 editText.setText(sharedText);
-            } else {
+            } else if (type != null) {
                 final Uri uri = (Uri) mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
                 String[] filePathColumn = {MediaStore.MediaColumns.DATA};
                 String scheme = uri.getScheme();
-                String filePath = null;
+                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Scheme " + scheme);
+                filePath = "";
                 if (scheme.equals("content")) {
                     Cursor cursor = mContext.getContentResolver().query(uri, filePathColumn, null, null, null);
                     cursor.moveToFirst(); // <--no more NPE
                     int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
                     filePath = cursor.getString(columnIndex);
+
                     cursor.close();
                     setImageView(filePath);
                     setFileTextView(filePath);
                 } else if (scheme.equals("file")) {
                     filePath = uri.getPath();
+                    if (type.contains("image") == true) {
+                        setImageView(filePath);
+                    }
                     setFileTextView(filePath);
                 } else {
                     Log.d(TAG, "Failed to load URI " + mIntent.toString());
@@ -292,191 +308,196 @@ public class SendActivity extends Activity {
     }
 
     static void Send() {
+        createCoverFlow();
 
-/*        if ("text/plain".equals(type)) {
-            handleSendText(intent, email); // Handle text being sent
+        if (filePath.equals("")) {
+            handleSendText(email); // Handle text being sent
         } else {
-            handleSendFile(intent, email); // Handle single image being sent
-        }*/
+            handleSendFile(email); // Handle single image being sent
+        }
+        //mApplication.finish();
 
     }
 
-    static void handleSendFile(Intent intent, final String email) {
-        final Uri imageUri = (Uri) intent.getParcelableExtra(Intent.EXTRA_STREAM);
-        String[] filePathColumn = {MediaStore.MediaColumns.DATA};
-        String scheme = imageUri.getScheme();
-        String filePath = null;
-        if (scheme.equals("content")) {
-            Cursor cursor = mContext.getContentResolver().query(imageUri, filePathColumn, null, null, null);
-            cursor.moveToFirst(); // <--no more NPE
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-
-            filePath = cursor.getString(columnIndex);
-
-            cursor.close();
-
-        } else if (scheme.equals("file")) {
-            filePath = imageUri.getPath();
-        } else {
-            Log.d(TAG, "Failed to load URI " + imageUri.toString());
-        }
-        final String filepath2 = filePath;
+    static void handleSendFile(final String email) {
+        EditText editText = (EditText) dialog
+                .findViewById(R.id.messageText);
+        final String sharedText = editText.getText().toString();
 
         mBuilder.setContentTitle("Pass")
                 .setContentText("Sending...")
                 .setSmallIcon(R.drawable.action_icon);
 
-        if (imageUri != null) {
-            String targetID = null;
-            String type = null;
-            new AsyncTask<String, Integer, String>() {
-                @Override
-                protected String doInBackground(String... params) {
-                    // TODO Auto-generated method stub
-                    String result = postData();
-                    return result;
-                }
+        String type = null;
+        new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                // TODO Auto-generated method stub
+                String result = postData();
+                return result;
+            }
 
-                public String postData() {
-                    String line = "";
-                    BufferedReader in = null;
+            public String postData() {
+                String line = "";
+                BufferedReader in = null;
 
-                    try {
-                        File file = new File(filepath2);
+                try {
+                    File file = new File(filePath);
 
-                        InputStream fileInputStream = new FileInputStream(file);
+                    InputStream fileInputStream = new FileInputStream(file);
 
-                        String lineEnd = "\r\n";
-                        String twoHyphens = "--";
-                        String boundary = "*****";
-                        URL connectURL = new URL("http://local-motion.ca/pass/upload.php");
+                    String lineEnd = "\r\n";
+                    String twoHyphens = "--";
+                    String boundary = "*****";
+                    URL connectURL = new URL("http://local-motion.ca/pass/server/upload_v1.php");
 
-                        // Open a HTTP connection to the URL
-                        HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
+                    // Open a HTTP connection to the URL
+                    HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
 
-                        // Allow Inputs
-                        conn.setDoInput(true);
+                    // Allow Inputs
+                    conn.setDoInput(true);
 
-                        // Allow Outputs
-                        conn.setDoOutput(true);
+                    // Allow Outputs
+                    conn.setDoOutput(true);
 
-                        // Don't use a cached copy.
-                        conn.setUseCaches(false);
+                    // Don't use a cached copy.
+                    conn.setUseCaches(false);
 
-                        // Use a post method.
-                        conn.setRequestMethod("POST");
+                    // Use a post method.
+                    conn.setRequestMethod("POST");
 
-                        conn.setRequestProperty("Connection", "Keep-Alive");
-                        conn.addRequestProperty("Email", email);
-                        conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+                    conn.setRequestProperty("Connection", "Keep-Alive");
+                    conn.addRequestProperty("Email", email);
+                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
 
-                        DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+                    DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
 
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+                    dos.writeBytes("Content-Disposition: form-data; name=\"email\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(email);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"targetID\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(targetID);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"targetType\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(targetType);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    if (!sharedText.equals("")) {
+                        dos.writeBytes("Content-Disposition: form-data; name=\"message\"" + lineEnd);
+                        dos.writeBytes(lineEnd);
+                        dos.writeBytes(sharedText);
+                        dos.writeBytes(lineEnd);
                         dos.writeBytes(twoHyphens + boundary + lineEnd);
-                        dos.writeBytes("Content-Disposition: form-data; name=\"title\"" + lineEnd);
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes("test");
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                        dos.writeBytes("Content-Disposition: form-data; name=\"description\"" + lineEnd);
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes("testdesc");
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                        dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + lineEnd);
-                        dos.writeBytes(lineEnd);
-
-                        // create a buffer of maximum size
-                        int bytesAvailable = fileInputStream.available();
-                        long totalSize = file.length();
-                        int sentByes = 0;
-                        int maxBufferSize = 1024;
-                        int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        byte[] buffer = new byte[bufferSize];
-
-                        // read file and write it into form...
-                        int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                        while (bytesRead > 0) {
-                            dos.write(buffer, 0, bufferSize);
-                            bytesAvailable = fileInputStream.available();
-                            bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                            sentByes += bufferSize;
-                            float progress = ((float) sentByes / (float) totalSize) * 100.0f;
-                            publishProgress((int) progress);
-                        }
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                        // close streams
-                        fileInputStream.close();
-
-                        dos.flush();
-
-
-                        InputStream is = conn.getInputStream();
-
-                        // retrieve the response from server
-                        int ch;
-
-                        StringBuffer b = new StringBuffer();
-                        while ((ch = is.read()) != -1) {
-                            b.append((char) ch);
-                        }
-                        String s = b.toString();
-                        dos.close();
-
-                        Log.i(MyActivity.TAG, MyActivity.mContext.getClass().getName() + ": " + "File uploaded. Filename: " + String.valueOf(s));
-                        Log.i(MyActivity.TAG, MyActivity.mContext.getClass().getName() + ": " + "Ready to send to targetID: " + SendActivity.targetID);
-
-                        HttpClient httpclient = new DefaultHttpClient();
-                        HttpPost httppost = null;
-                        httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
-
-                        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-                        nameValuePairs.add(new BasicNameValuePair("email", email));
-                        nameValuePairs.add(new BasicNameValuePair("fileName", s));
-                        nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
-                        nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
-                        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                        HttpResponse response = httpclient.execute(httppost);
-
-                        in = new BufferedReader(new InputStreamReader(
-                                response.getEntity().getContent()));
-
-                        line = in.readLine();
-
-                    } catch (ClientProtocolException e) {
-                        e.printStackTrace();
-                        // TODO Auto-generated catch block
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        // TODO Auto-generated catch block
                     }
-                    return line;
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+
+                    // create a buffer of maximum size
+                    int bytesAvailable = fileInputStream.available();
+                    long totalSize = file.length();
+                    int sentByes = 0;
+                    int maxBufferSize = 1024;
+                    int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    byte[] buffer = new byte[bufferSize];
+
+                    // read file and write it into form...
+                    int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                    while (bytesRead > 0) {
+                        dos.write(buffer, 0, bufferSize);
+                        bytesAvailable = fileInputStream.available();
+                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                        sentByes += bufferSize;
+                        float progress = ((float) sentByes / (float) totalSize) * 100.0f;
+                        publishProgress((int) progress);
+                    }
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                    // close streams
+                    fileInputStream.close();
+
+                    dos.flush();
+
+
+                    InputStream is = conn.getInputStream();
+
+                    // retrieve the response from server
+                    int ch;
+
+                    StringBuffer b = new StringBuffer();
+                    while ((ch = is.read()) != -1) {
+                        b.append((char) ch);
+                    }
+                    String s = b.toString();
+                    dos.close();
+
+                    HttpClient httpclient = new DefaultHttpClient();
+                    HttpPost httppost = null;
+                    httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
+
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                    nameValuePairs.add(new BasicNameValuePair("email", email));
+                    nameValuePairs.add(new BasicNameValuePair("fileName", s));
+                    nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
+                    nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    HttpResponse response = httpclient.execute(httppost);
+
+                    in = new BufferedReader(new InputStreamReader(
+                            response.getEntity().getContent()));
+
+                    line = in.readLine();
+
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // TODO Auto-generated catch block
                 }
+                return line;
+            }
 
-                @Override
-                protected void onPostExecute(String msg) {
-                    mBuilder.setContentText("Send complete")
-                            .setProgress(0, 0, false);
-                    mNotificationManager.notify(1, mBuilder.build());
+            @Override
+            protected void onPostExecute(String msg) {
+                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Message " + msg);
+                mBuilder.setContentText("Send complete")
+                        .setProgress(0, 0, false);
+                mNotificationManager.notify(1, mBuilder.build());
 
-                }
+            }
 
-                protected void onProgressUpdate(Integer... progress) {
-                    mBuilder.setProgress(100, progress[0], false);
-                    // Displays the progress bar for the first time.
-                    mNotificationManager.notify(1, mBuilder.build());
-                }
-            }.execute();
+            protected void onProgressUpdate(Integer... progress) {
+                mBuilder.setProgress(100, progress[0], false);
+                // Displays the progress bar for the first time.
+                mNotificationManager.notify(1, mBuilder.build());
+            }
+        }.execute();
 
+    }
+
+    void setSave() {
+        Button save = (Button) dialog.findViewById(R.id.saveButton);
+        if (saveMessage == false) {
+            saveMessage = true;
+            save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_yellow));
+        } else {
+            saveMessage = false;
+            save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
         }
     }
 
@@ -484,6 +505,7 @@ public class SendActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mContext = this;
+        mApplication = getApplication();
         mPrefs = getSharedPreferences(mContext.getPackageName(),
                 Context.MODE_PRIVATE);
         mNotificationManager = (NotificationManager)
@@ -524,8 +546,15 @@ public class SendActivity extends Activity {
                 showChooser();
             }
         });
+        Button saveButton = (Button) dialog.findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSave();
+            }
+        });
         setContentView(R.layout.activity_send);
-        createListView();
+        createCoverFlow();
     }
 
     private void showChooser() {
@@ -550,12 +579,12 @@ public class SendActivity extends Activity {
                         final Uri uri = data.getData();
                         try {
                             // Get the file path from the URI
-                            final String path = FileUtils.getPath(this, uri);
+                            filePath = FileUtils.getPath(this, uri);
                             Toast.makeText(mContext,
-                                    "File Selected: " + path, Toast.LENGTH_LONG).show();
-                            String type = GeneralUtilities.getMimeType(path);
+                                    "File Selected: " + filePath, Toast.LENGTH_LONG).show();
+                            String type = GeneralUtilities.getMimeType(filePath);
                             if (type.contains("image") == true) {
-                                setImageView(path);
+                                setImageView(filePath);
                                 setFileTextView(filePath);
                             }
                         } catch (Exception e) {

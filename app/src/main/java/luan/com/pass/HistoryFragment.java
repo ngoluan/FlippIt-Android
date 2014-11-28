@@ -2,6 +2,7 @@ package luan.com.pass;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -182,7 +184,17 @@ public class HistoryFragment extends Fragment {
         };
         String email = MyActivity.mPrefs.getString("email", "");
         new GetFolderSize(Callback, MyActivity.mContext, email);
-        // Inflate the layout for this fragment
+
+        ImageButton sendButton = (ImageButton) mView.findViewById(R.id.sendButton);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent(MyActivity.mContext, SendActivity.class);
+                sendIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                MyActivity.mContext.startActivity(sendIntent);
+            }
+        });
+
         return mView;
     }
 

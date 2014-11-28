@@ -67,6 +67,7 @@ class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlow
                 String targetID = deviceItems.get(position).targetID;
                 SendActivity.targetID = targetID;
                 String targetType = deviceItems.get(position).type;
+                SendActivity.targetType = targetType;
                 SharedPreferences.Editor editor = SendActivity.mPrefs.edit();
                 editor.putString("targetID", targetID);
                 editor.putString("targetType", targetType);

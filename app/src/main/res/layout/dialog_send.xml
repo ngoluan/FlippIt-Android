@@ -55,7 +55,7 @@
 
 
     <EditText
-        android:id="@+id/textMessage"
+        android:id="@+id/messageText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:ems="10"
@@ -93,7 +93,7 @@
             android:textColor="@color/white" />
 
         <Button
-            android:id="@+id/log"
+            android:id="@+id/saveButton"
             android:layout_width="96dp"
             android:layout_height="36dp"
             android:layout_alignParentTop="true"
