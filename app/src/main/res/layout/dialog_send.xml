@@ -50,7 +50,7 @@
                     android:layout_centerVertical="true"
                     android:alpha="10"
                     android:background="@drawable/refresh_blue"
-                    android:src="@drawable/deviceSettings_white" />
+                    android:src="@drawable/devicesettings_white" />
 
                 <ImageButton
                     android:id="@+id/refreshDialog"

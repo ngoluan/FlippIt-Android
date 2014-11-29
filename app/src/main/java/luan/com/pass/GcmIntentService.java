@@ -32,7 +32,10 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import luan.com.pass.utilities.CopyClipboard;
 import luan.com.pass.utilities.SendFileNotificationInterface;
@@ -107,10 +110,19 @@ public class GcmIntentService extends IntentService {
 
             msg = data.getString("message");
             msg = java.net.URLDecoder.decode(msg, "UTF-8");
+
             fileName = data.getString("fileName");
+
             String type = GeneralUtilities.typeOfMessage(fileName);
 
-            if (type.equals("image")) {
+            if (fileName.equals("")) {
+                String extraFileName = searchForExtra(msg);
+                String extraType = extraMIMEOnline(extraFileName);
+                type = extraType;
+            }
+
+
+            if (type.contains("image")) {
                 imgNotification(fileName, msg);
             } else if (type.equals("file")) {
                 fileNotification(fileName, msg);
@@ -174,5 +186,40 @@ public class GcmIntentService extends IntentService {
                 mContext, mNotificationManager, mBuilder);
     }
 
+    private String searchForExtra(String message) {
+        int start = 0;
+        int end = 0;
+        String urlStr = "";
+        if (message.indexOf("http") > -1) {
+            start = message.indexOf("http");
+            end = message.indexOf(" ", start);
+            if (end == -1) {
+                end = message.length();
+            }
+            urlStr = message.substring(start, end);
+
+        }
+        return urlStr;
+    }
+
+    private String extraMIMEOnline(String urlStr) {
+        String contentType = "";
+        try {
+            URL url = new URL(urlStr);
+            HttpURLConnection connection = null;
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.connect();
+            contentType = connection.getContentType();
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Http content: " + contentType);
+            if (contentType.contains("audio") == true || contentType.contains("video") == true || contentType.contains("application") == true) {
+                contentType = "file";
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contentType;
+    }
 
 }

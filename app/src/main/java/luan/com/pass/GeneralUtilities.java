@@ -16,6 +16,8 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
  */
 public class GeneralUtilities {
     static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    static final String TAG = "luan.com.pass";
+    static final int FOLDER_LIMIT = 50 * 1024;
 
     static int getAppVersion(Context context) {
         try {

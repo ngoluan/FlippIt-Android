@@ -1,9 +1,13 @@
 package luan.com.pass;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -77,6 +81,53 @@ class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlow
             }
         });
 
+        layout.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(viewGroup.getContext());
+                String[] choices = {"Change device name", "Delete device"};
+                alertDialogBuilder.setItems(choices, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        if (i == 0) {
+                            final Dialog dialog = new Dialog(viewGroup.getContext());
+                            dialog.setTitle("Change device name to:");
+                            dialog.setContentView(R.layout.dialog_devicename);
+                            dialog.show();
+
+                            Button saveButton = (Button) dialog.findViewById(R.id.saveButtonDialog);
+                            saveButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+
+                                }
+                            });
+                        } else {
+                            AlertDialog.Builder deleteDialogBuilder = new AlertDialog.Builder(viewGroup.getContext());
+
+                            deleteDialogBuilder.setPositiveButton("Delete device?", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+
+                                }
+                            });
+                            deleteDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            AlertDialog deleteDialog = deleteDialogBuilder.create();
+                            deleteDialog.show();
+                        }
+                    }
+                });
+                AlertDialog dialog = alertDialogBuilder.create();
+                dialog.show();
+                return false;
+            }
+        });
+
         return reuseableView;
     }
 
@@ -86,75 +137,3 @@ class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlow
     }
 }
 
-
-// =============================================================================
-// Private members
-// =============================================================================
-    /*ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
-    private Context mContext;
-    private int[] images = {};
-
-    // =============================================================================
-    // Supertype overrides
-    // =============================================================================
-    public FancyCoverFlowSampleAdapter(Context c) {
-        mContext = c;
-    }
-
-    @Override
-    public int getCount() {
-        return deviceItems.size();
-    }
-
-    @Override
-    public Integer getItem(int i) {
-        return null;
-    }
-
-    @Override
-    public long getItemId(int i) {
-        return 0;
-    }
-
-    @Override
-    public View getCoverFlowItem(final int position, View reuseableView, ViewGroup viewGroup) {
-        LayoutInflater inflater = (LayoutInflater) mContext
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View gridView;
-
-        if (reuseableView == null) {
-
-            gridView = new View(mContext);
-
-            // get layout from mobile.xml
-            gridView = inflater.inflate(R.layout.item_device, null);
-
-            // set value into textview
-            TextView textView = (TextView) gridView
-                    .findViewById(R.id.textView);
-            textView.setText(deviceItems.get(position).name);
-            if (deviceItems.get(position).name.equals("")) {
-                textView.setText(deviceItems.get(position).type);
-            }
-            ImageView imageView = (ImageView) gridView
-                    .findViewById(R.id.imageView);
-            if (deviceItems.get(position).type.equals("chrome")) {
-                imageView.setImageResource(R.drawable.computer_black);
-            } else if (deviceItems.get(position).type.equals("android")) {
-                imageView.setImageResource(R.drawable.phone_black);
-            } else {
-                imageView.setImageResource(R.drawable.cloud_black);
-            }
-        } else {
-            gridView = reuseableView;
-        }
-
-
-        return gridView;
-    }
-
-    public void updateEntries(ArrayList<DeviceItem> items) {
-        deviceItems = items;
-        notifyDataSetChanged();
-    }*/

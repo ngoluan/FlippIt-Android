@@ -1,6 +1,7 @@
 package luan.com.pass;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Application;
 import android.app.Dialog;
 import android.app.NotificationManager;
@@ -23,10 +24,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -485,7 +489,7 @@ public class SendActivity extends Activity {
         if (saveMessage == false) {
             saveMessage = true;
             save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_yellow));
-            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.font_grey));
+            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.base_blue));
         } else {
             saveMessage = false;
             save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
@@ -543,6 +547,30 @@ public class SendActivity extends Activity {
             @Override
             public void onClick(View v) {
                 setSave();
+            }
+        });
+        ImageButton settingsButton = (ImageButton) dialog.findViewById(R.id.deviceSettingDialog);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                View settingsView = getLayoutInflater().inflate(R.layout.dialog_device_settings, null);
+                AlertDialog alertDialog = alertDialogBuilder.setView(settingsView).create();
+                ListView listView = (ListView) alertDialog.findViewById(R.id.listView2);
+                String[] choices = {"Change device name", "Delete device"};
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1, choices);
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        if (i == 0) {
+
+                        } else {
+
+                        }
+                    }
+                });
+                alertDialog.show();
             }
         });
         setContentView(R.layout.activity_send);

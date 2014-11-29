@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -175,8 +176,9 @@ public class HistoryFragment extends Fragment {
         OnTaskCompleted Callback = new OnTaskCompleted() {
             @Override
             public void onTaskCompleted(int folderSize, Context context) {
-                if (folderSize > 10 * 1024) {
-                    int limit = (int) ((float) (folderSize / (10 * 1024)) * 100);
+                Log.i(GeneralUtilities.TAG, MyActivity.mContext.getClass().getName() + ": " + "Folder size: " + String.valueOf(folderSize));
+                if (folderSize > GeneralUtilities.FOLDER_LIMIT) {
+                    int limit = (int) ((float) (folderSize / (GeneralUtilities.FOLDER_LIMIT)) * 100);
                     Toast.makeText(context, "You have reached " + String.valueOf(limit) + "% of your space. Consider deleting some messages.", Toast.LENGTH_LONG).show();
                 }
             }

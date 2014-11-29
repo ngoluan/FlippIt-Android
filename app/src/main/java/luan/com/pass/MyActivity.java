@@ -172,7 +172,7 @@ public class MyActivity extends ActionBarActivity {
         dialog.setContentView(R.layout.dialog_devicename);
         dialog.show();
 
-        Button saveButton = (Button) dialog.findViewById(R.id.save);
+        Button saveButton = (Button) dialog.findViewById(R.id.saveButtonDialog);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
