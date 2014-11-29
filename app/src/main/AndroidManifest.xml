@@ -66,7 +66,8 @@
             android:enabled="@bool/use_activity"
             android:exported="true"
             android:icon="@drawable/ic_chooser"
-            android:label="@string/choose_file">
+            android:label="@string/choose_file"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
 

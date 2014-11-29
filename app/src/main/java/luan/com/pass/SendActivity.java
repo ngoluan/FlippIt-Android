@@ -227,6 +227,7 @@ public class SendActivity extends Activity {
                         nameValuePairs.add(new BasicNameValuePair("targetID", targetID));
                         nameValuePairs.add(new BasicNameValuePair("message", sharedText));
                         nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
+                        nameValuePairs.add(new BasicNameValuePair("saveMessage", String.valueOf(saveMessage)));
                         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                         HttpResponse response = httpclient.execute(httppost);
@@ -391,6 +392,12 @@ public class SendActivity extends Activity {
                     dos.writeBytes(lineEnd);
                     dos.writeBytes(twoHyphens + boundary + lineEnd);
 
+                    dos.writeBytes("Content-Disposition: form-data; name=\"saveMessage\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(String.valueOf(saveMessage));
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
                     if (!sharedText.equals("")) {
                         dos.writeBytes("Content-Disposition: form-data; name=\"message\"" + lineEnd);
                         dos.writeBytes(lineEnd);
@@ -443,23 +450,6 @@ public class SendActivity extends Activity {
                     String s = b.toString();
                     dos.close();
 
-                    /*HttpClient httpclient = new DefaultHttpClient();
-                    HttpPost httppost = null;
-                    httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
-
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-                    nameValuePairs.add(new BasicNameValuePair("email", email));
-                    nameValuePairs.add(new BasicNameValuePair("fileName", s));
-                    nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
-                    nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                    HttpResponse response = httpclient.execute(httppost);
-
-                    in = new BufferedReader(new InputStreamReader(
-                            response.getEntity().getContent()));*/
-
                     line = s;
 
                 } catch (ClientProtocolException e) {
@@ -495,9 +485,11 @@ public class SendActivity extends Activity {
         if (saveMessage == false) {
             saveMessage = true;
             save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_yellow));
+            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.font_grey));
         } else {
             saveMessage = false;
             save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
+            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.white));
         }
     }
 

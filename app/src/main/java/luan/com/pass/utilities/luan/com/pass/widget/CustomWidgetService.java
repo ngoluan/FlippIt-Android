@@ -22,15 +22,17 @@ public class CustomWidgetService extends RemoteViewsService {
         return (new ListViewFactory(this.getApplicationContext(), intent));
     }
 }
-class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
-    private Context mContext =null;
+
+class ListViewFactory implements RemoteViewsService.RemoteViewsFactory {
+    private Context mContext = null;
     private int appWidgetId;
 
     public ListViewFactory(Context ctxt, Intent intent) {
         appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
                 AppWidgetManager.INVALID_APPWIDGET_ID);
-        this.mContext =ctxt;
+        this.mContext = ctxt;
     }
+
     @Override
     public void onCreate() {
         Log.i(MyActivity.TAG, getClass().getName() + ": ListViewFactory created.");
@@ -58,17 +60,16 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory{
         row.setTextViewText(R.id.dateTime, WidgetProvider.historyItems.get(i).dateTime);
 
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Drawing row " + i);
-        if(WidgetProvider.historyItems.get(i).type.equals("text")){
+        if (WidgetProvider.historyItems.get(i).type.equals("text")) {
             message = WidgetProvider.historyItems.get(i).message;
             row.setViewVisibility(R.id.open, View.GONE);
             row.setViewVisibility(R.id.copy, View.VISIBLE);
-        }
-        else{
+        } else {
             if (WidgetProvider.historyItems.get(i).type.equals("file")) {
                 message = "File transfer: " + WidgetProvider.historyItems.get(i).fileName;
             } else if (WidgetProvider.historyItems.get(i).type.equals("image")) {
                 if (WidgetProvider.historyItems.get(i).bitmap == null) {
-                    row.setTextViewText(R.id.message,"Image transfer: " + WidgetProvider.historyItems.get(i).fileName +"\nImage not available on device. Tap to download.");
+                    row.setTextViewText(R.id.message, "Image transfer: " + WidgetProvider.historyItems.get(i).fileName + "\nImage not available on device. Tap to download.");
                 }
             }
             if (!WidgetProvider.historyItems.get(i).message.equals("")) {//attaches message to file or image transfer if a message exist

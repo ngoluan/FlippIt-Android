@@ -176,8 +176,7 @@ public class HistoryFragment extends Fragment {
             @Override
             public void onTaskCompleted(int folderSize, Context context) {
                 if (folderSize > 10 * 1024) {
-                    int limit = (folderSize / (10 * 1024) * 100);
-
+                    int limit = (int) ((float) (folderSize / (10 * 1024)) * 100);
                     Toast.makeText(context, "You have reached " + String.valueOf(limit) + "% of your space. Consider deleting some messages.", Toast.LENGTH_LONG).show();
                 }
             }

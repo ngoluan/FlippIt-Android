@@ -54,6 +54,7 @@ public class GcmIntentService extends IntentService {
     static NotificationCompat.Builder mBuilder = null;
     static SharedPreferences mPrefs = null;
     static ActivityManager activityManager;
+
     public GcmIntentService() {
         super("GcmIntentService");
     }
@@ -102,7 +103,7 @@ public class GcmIntentService extends IntentService {
         try {
             data = new JSONObject(content);
 
-            Log.i(MyActivity.TAG, getClass().getName()+": "+ "Received message: " + data);
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received message: " + data);
 
             msg = data.getString("message");
             msg = java.net.URLDecoder.decode(msg, "UTF-8");
@@ -143,7 +144,7 @@ public class GcmIntentService extends IntentService {
         mNotificationManager.cancel(1);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         new CopyClipboard(msg, mContext);
-        UpdateHistory updateHistory=new UpdateHistory();
+        UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(mContext);
     }
 
@@ -151,7 +152,7 @@ public class GcmIntentService extends IntentService {
         mBuilder.setContentTitle("Pass")
                 .setContentText("Download in progress")
                 .setSmallIcon(R.drawable.action_icon);
-        Log.i(MyActivity.TAG, getClass().getName()+": "+ "Creating image notification");
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Creating image notification");
         String email = mPrefs.getString("email", "");
         DownloadFiles downloadFiles = new DownloadFiles();
         MyActivity.Callback sendImageNotificationInterface = new SendImageNotificationInterface();
@@ -164,7 +165,7 @@ public class GcmIntentService extends IntentService {
         mBuilder.setContentTitle("Pass")
                 .setContentText("Download in progress")
                 .setSmallIcon(R.drawable.action_icon);
-        Log.i(MyActivity.TAG, getClass().getName()+": "+ "Creating file notification");
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Creating file notification");
         String email = mPrefs.getString("email", "");
         DownloadFiles downloadFiles = new DownloadFiles();
         MyActivity.Callback sendFileNotificationInterface = new SendFileNotificationInterface();

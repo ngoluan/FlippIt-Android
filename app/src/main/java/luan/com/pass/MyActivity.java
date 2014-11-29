@@ -45,7 +45,7 @@ public class MyActivity extends ActionBarActivity {
     static SharedPreferences mPrefs = null;
     static Context mContext;
     static String regid;
-    static String email="";
+    static String email = "";
     GoogleCloudMessaging gcm;
 
     @Override
@@ -62,7 +62,7 @@ public class MyActivity extends ActionBarActivity {
         ActionBar actionBar = getSupportActionBar();
         String email = mPrefs.getString("email", "");
 
-        CLASS_NAME= mContext.getClass().getName();
+        CLASS_NAME = mContext.getClass().getName();
 
         gcm = GoogleCloudMessaging.getInstance(mContext);
         if (GeneralUtilities.checkPlayServices(this)) {

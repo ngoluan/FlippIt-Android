@@ -1,4 +1,5 @@
 package luan.com.pass.utilities;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -36,11 +37,10 @@ import luan.com.pass.widget.WidgetProvider;
 /**
  * Created by Luan on 2014-11-10.
  */
-public class UpdateHistoryListview
-{
-    public  UpdateHistoryListview(final int totalLoad, final String email, final ProgressBar progressBar, final RemoteViews view,
-                                  final HistoryFragment.HistoryGetCallback historyGetCallback, final WidgetProvider.WidgetGetCallback widgetGetCallback){
-        if(progressBar!=null){
+public class UpdateHistoryListview {
+    public UpdateHistoryListview(final int totalLoad, final String email, final ProgressBar progressBar, final RemoteViews view,
+                                 final HistoryFragment.HistoryGetCallback historyGetCallback, final WidgetProvider.WidgetGetCallback widgetGetCallback) {
+        if (progressBar != null) {
             progressBar.setIndeterminate(true);
         }
 
@@ -112,16 +112,17 @@ public class UpdateHistoryListview
                 }
                 return historyItems;
             }
+
             @Override
             protected void onPostExecute(ArrayList<HistoryItem> historyItems) {
                 Log.i(MyActivity.TAG, getClass().getName() + ": " + "Callback: " + String.valueOf(widgetGetCallback));
-                if(historyGetCallback!=null){
+                if (historyGetCallback != null) {
                     historyGetCallback.callBack(historyItems);
                 }
-                if(widgetGetCallback!=null){
+                if (widgetGetCallback != null) {
                     widgetGetCallback.callBack(historyItems);
                 }
-                if(progressBar!=null){
+                if (progressBar != null) {
                     progressBar.setIndeterminate(false);
                 }
 

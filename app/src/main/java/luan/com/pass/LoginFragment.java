@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,11 +91,10 @@ public class LoginFragment extends Fragment {
 
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpPost httppost = null;
-                if(type.equals("login")){
-                    httppost= new HttpPost("http://local-motion.ca/pass/signinUser.php");
-                }
-                else{
-                    httppost= new HttpPost("http://local-motion.ca/pass/regUser.php");
+                if (type.equals("login")) {
+                    httppost = new HttpPost("http://local-motion.ca/pass/signinUser.php");
+                } else {
+                    httppost = new HttpPost("http://local-motion.ca/pass/regUser.php");
                 }
 
                 try {

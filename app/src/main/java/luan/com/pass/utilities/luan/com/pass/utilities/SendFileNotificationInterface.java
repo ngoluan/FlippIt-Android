@@ -17,8 +17,8 @@ import luan.com.pass.R;
 import luan.com.pass.UpdateHistory;
 
 /**
-* Created by Luan on 2014-11-13.
-*/
+ * Created by Luan on 2014-11-13.
+ */
 public class SendFileNotificationInterface implements MyActivity.Callback {
     @Override
     public void callBack(String position, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder) {
@@ -59,8 +59,8 @@ public class SendFileNotificationInterface implements MyActivity.Callback {
                 .setContentIntent(pendingOpen)
                 .setProgress(0, 0, false);
         mNotificationManager.notify(1, mBuilder.build());
-        Log.i(MyActivity.TAG,getClass().getName()+": "+ "Updating history. ");
-        UpdateHistory updateHistory=new UpdateHistory();
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Updating history. ");
+        UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(context);
     }
 }

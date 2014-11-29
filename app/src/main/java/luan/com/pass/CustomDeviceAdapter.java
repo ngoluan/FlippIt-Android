@@ -87,9 +87,9 @@ class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlow
 }
 
 
-    // =============================================================================
-    // Private members
-    // =============================================================================
+// =============================================================================
+// Private members
+// =============================================================================
     /*ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
     private Context mContext;
     private int[] images = {};

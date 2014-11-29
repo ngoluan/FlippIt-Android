@@ -72,31 +72,30 @@ public class CustomHistoryAdapter extends BaseAdapter {
 
         dateTimeText.setText(HistoryFragment.historyItems.get(position).dateTime);
 
-        if(HistoryFragment.historyItems.get(position).type.equals("text")){
+        if (HistoryFragment.historyItems.get(position).type.equals("text")) {
             messageText.setText(HistoryFragment.historyItems.get(position).message);
             openButton.setVisibility(View.GONE);
-        }
-        else{
+        } else {
             if (HistoryFragment.historyItems.get(position).type.equals("file")) {
-                messageText.setText("File transfer: " + HistoryFragment.historyItems.get(position).fileName );
+                messageText.setText("File transfer: " + HistoryFragment.historyItems.get(position).fileName);
             } else if (HistoryFragment.historyItems.get(position).type.equals("image")) {
                 if (HistoryFragment.historyItems.get(position).bitmap == null) {
-                    messageText.setText("Image transfer: " + HistoryFragment.historyItems.get(position).fileName +"\nImage not available on device. Tap to download.");
+                    messageText.setText("Image transfer: " + HistoryFragment.historyItems.get(position).fileName + "\nImage not available on device. Tap to download.");
                 }
                 imageView.setImageBitmap(HistoryFragment.historyItems.get(position).bitmap);
                 imageView.requestLayout();
                 imageView.getLayoutParams().height = 200;//doesnt work
             }
-            if(!HistoryFragment.historyItems.get(position).message.equals("")){//attaches message to file or image transfer if a message exist
-                messageText.setText(messageText.getText().toString()+ "\n"+ HistoryFragment.historyItems.get(position).message)   ;
+            if (!HistoryFragment.historyItems.get(position).message.equals("")) {//attaches message to file or image transfer if a message exist
+                messageText.setText(messageText.getText().toString() + "\n" + HistoryFragment.historyItems.get(position).message);
             }
-            if(messageText.getText().toString().indexOf("\n")==0){//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
+            if (messageText.getText().toString().indexOf("\n") == 0) {//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
                 messageText.setText(messageText.getText().toString().substring(1));
             }
             copyButton.setVisibility(View.GONE);
         }
 
-        if (messageText.getText().toString().equals("")){
+        if (messageText.getText().toString().equals("")) {
             messageText.setVisibility(View.GONE);
         }
 

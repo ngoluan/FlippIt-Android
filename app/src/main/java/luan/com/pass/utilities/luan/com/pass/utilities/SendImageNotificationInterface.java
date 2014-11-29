@@ -16,8 +16,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 
 import luan.com.pass.MyActivity;
 import luan.com.pass.R;
@@ -27,7 +25,8 @@ import luan.com.pass.UpdateHistory;
  * Created by Luan on 2014-11-02.
  */
 public class SendImageNotificationInterface implements MyActivity.Callback {
-    String TAG=null;
+    String TAG = null;
+
     @Override
     public void callBack(String position, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder) {
 
@@ -35,14 +34,14 @@ public class SendImageNotificationInterface implements MyActivity.Callback {
 
     @Override
     public void callBack(String fileName, String msg, Bitmap image, Context context, NotificationManager notificationManager, NotificationCompat.Builder builder) {
-        TAG=context.getPackageName();
+        TAG = context.getPackageName();
         String path = null;
         OutputStream stream = null;
 
         try {
             File file = new File(Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
-            Log.i(TAG,getClass().getName()+": "+ "Creating file.");
+            Log.i(TAG, getClass().getName() + ": " + "Creating file.");
             if (!file.exists()) {
                 try {
                     file.createNewFile();
@@ -89,12 +88,12 @@ public class SendImageNotificationInterface implements MyActivity.Callback {
                 .addAction(R.drawable.action_share, "Share", pendingShare);
 
 
-        Log.i(TAG,getClass().getName()+": "+ "Sending notification.");
+        Log.i(TAG, getClass().getName() + ": " + "Sending notification.");
         notificationManager.notify(1, builder.build());
 
 
-        Log.i(TAG,getClass().getName()+": "+ "Updating history. ");
-        UpdateHistory updateHistory=new UpdateHistory();
+        Log.i(TAG, getClass().getName() + ": " + "Updating history. ");
+        UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(context);
     }
 }
