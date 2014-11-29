@@ -315,7 +315,7 @@ public class SendActivity extends Activity {
         } else {
             handleSendFile(email); // Handle single image being sent
         }
-        //mApplication.finish();
+        ((Activity) mContext).finish();
 
     }
 
@@ -443,7 +443,7 @@ public class SendActivity extends Activity {
                     String s = b.toString();
                     dos.close();
 
-                    HttpClient httpclient = new DefaultHttpClient();
+                    /*HttpClient httpclient = new DefaultHttpClient();
                     HttpPost httppost = null;
                     httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
 
@@ -458,9 +458,9 @@ public class SendActivity extends Activity {
                     HttpResponse response = httpclient.execute(httppost);
 
                     in = new BufferedReader(new InputStreamReader(
-                            response.getEntity().getContent()));
+                            response.getEntity().getContent()));*/
 
-                    line = in.readLine();
+                    line = s;
 
                 } catch (ClientProtocolException e) {
                     e.printStackTrace();
