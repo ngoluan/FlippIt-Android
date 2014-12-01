@@ -53,7 +53,11 @@ public class DownloadFiles {
                 HttpPost httppost = null;
 
                 try {
-                    url = "http://www.local-motion.ca/pass/uploads/" + email + '/' + URLEncoder.encode(url, "UTF-8");
+                    if (fileName.contains("http") == true) {
+                        url = fileName;
+                    } else {
+                        url = "http://www.local-motion.ca/pass/uploads/" + email + '/' + URLEncoder.encode(url, "UTF-8");
+                    }
                     Log.i(MyActivity.TAG, getClass().getName() + ": " + "Getting image. Url: " + url);
                     httppost = new HttpPost(url);
                     HttpResponse response = httpclient.execute(httppost);

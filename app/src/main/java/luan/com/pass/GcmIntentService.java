@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -118,14 +119,20 @@ public class GcmIntentService extends IntentService {
             if (fileName.equals("")) {
                 String extraFileName = searchForExtra(msg);
                 String extraType = extraMIMEOnline(extraFileName);
-                type = extraType;
+
+                Log.i(MyActivity.TAG, "Extra type " + type);
+                if (!extraType.equals("")) {
+                    fileName = msg;
+                    type = extraType;
+                }
+
             }
-
-
             if (type.contains("image")) {
                 imgNotification(fileName, msg);
             } else if (type.equals("file")) {
                 fileNotification(fileName, msg);
+            } else if (type.equals("web")) {
+                webNotification(msg);
             } else {
                 textNotification(msg);
             }
@@ -156,6 +163,34 @@ public class GcmIntentService extends IntentService {
         mNotificationManager.cancel(1);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         new CopyClipboard(msg, mContext);
+        UpdateHistory updateHistory = new UpdateHistory();
+        updateHistory.updateHistory(mContext);
+    }
+
+    private void webNotification(String msg) {
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MyActivity.class), 0);
+
+        Log.i(MyActivity.TAG, "Web notification : " + msg);
+
+
+        String url = msg;
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, i, 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.action_icon)
+                        .setContentTitle("Pass")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(msg))
+                        .addAction(R.drawable.action_folder, "Open website", pendingWeb)
+                        .setContentText(msg);
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.cancel(1);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(mContext);
     }
@@ -212,8 +247,16 @@ public class GcmIntentService extends IntentService {
             connection.connect();
             contentType = connection.getContentType();
             Log.i(MyActivity.TAG, getClass().getName() + ": " + "Http content: " + contentType);
-            if (contentType.contains("audio") == true || contentType.contains("video") == true || contentType.contains("application") == true) {
-                contentType = "file";
+            if (!contentType.equals(null)) {
+                if (contentType.contains("audio") == true || contentType.contains("video") == true || contentType.contains("application") == true) {
+                    contentType = "file";
+                } else if (contentType.contains("image") == true) {
+                    contentType = "image";
+                } else {
+                    contentType = "web";
+                }
+            } else {
+                contentType = "web";
             }
 
         } catch (IOException e) {
