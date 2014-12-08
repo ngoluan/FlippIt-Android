@@ -42,17 +42,6 @@
                 android:orientation="horizontal">
 
                 <ImageButton
-                    android:id="@+id/deviceSettingDialog"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:alpha="10"
-                    android:background="@drawable/refresh_blue"
-                    android:src="@drawable/devicesettings_white" />
-
-                <ImageButton
                     android:id="@+id/refreshDialog"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
@@ -71,7 +60,7 @@
     <at.technikum.mti.fancycoverflow.FancyCoverFlow
         android:id="@+id/fancyCoverFlow"
         android:layout_width="match_parent"
-        android:layout_height="160dp"
+        android:layout_height="130dp"
         android:background="@color/base_grey" />
 
 

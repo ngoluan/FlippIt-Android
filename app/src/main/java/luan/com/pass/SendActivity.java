@@ -25,12 +25,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +70,7 @@ public class SendActivity extends Activity {
     static public NotificationManager mNotificationManager;
     static SharedPreferences mPrefs = null;
     static NotificationCompat.Builder mBuilder = null;
+    static CustomDeviceAdapter customDeviceAdapter = null;
     static FancyCoverFlow fancyCoverFlow;
     static Context mContext = null;
     static Application mApplication = null;
@@ -166,7 +165,7 @@ public class SendActivity extends Activity {
             Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Devices received: " + String.valueOf(deviceItems.size()));
             deviceItems.add(0, new DeviceItem("cloud", "cloud", "cloud"));
 
-            CustomDeviceAdapter customDeviceAdapter = new CustomDeviceAdapter();
+            customDeviceAdapter = new CustomDeviceAdapter(mContext);
             fancyCoverFlow.setAdapter(customDeviceAdapter);
 
             fancyCoverFlow.setUnselectedAlpha(1.0f);
@@ -176,6 +175,70 @@ public class SendActivity extends Activity {
             fancyCoverFlow.setMaxRotation(0);
             fancyCoverFlow.setScaleDownGravity(0.2f);
             fancyCoverFlow.setActionDistance(FancyCoverFlow.ACTION_DISTANCE_AUTO);
+
+            fancyCoverFlow.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                    String targetID = customDeviceAdapter.deviceItems.get(position).targetID;
+                    SendActivity.targetID = targetID;
+                    String targetType = customDeviceAdapter.deviceItems.get(position).type;
+                    SendActivity.targetType = targetType;
+                    SharedPreferences.Editor editor = SendActivity.mPrefs.edit();
+                    editor.putString("targetID", targetID);
+                    editor.putString("targetType", targetType);
+                    editor.commit();
+                    CustomDeviceAdapter.updateEntries(deviceItems);
+                    SendActivity.Send();
+                }
+            });
+            fancyCoverFlow.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+                @Override
+                public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
+                    Toast.makeText(mContext, "Long press", Toast.LENGTH_SHORT).show();
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                    String[] choices = {"Change device name", "Delete device"};
+                    alertDialogBuilder.setItems(choices, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            if (i == 0) {
+                                final Dialog dialog = new Dialog(mContext);
+                                dialog.setTitle("Change device name to:");
+                                dialog.setContentView(R.layout.dialog_devicename);
+                                dialog.show();
+
+                                Button saveButton = (Button) dialog.findViewById(R.id.saveButtonDialog);
+                                saveButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+
+                                    }
+                                });
+                            } else {
+                                AlertDialog.Builder deleteDialogBuilder = new AlertDialog.Builder(mContext);
+
+                                deleteDialogBuilder.setPositiveButton("Delete device?", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        SendActivity.deleteDevice(position, email);
+                                        dialogInterface.dismiss();
+                                    }
+                                });
+                                deleteDialogBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                });
+                                AlertDialog deleteDialog = deleteDialogBuilder.create();
+                                deleteDialog.show();
+                            }
+                        }
+                    });
+                    AlertDialog dialog = alertDialogBuilder.create();
+                    dialog.show();
+                    return false;
+                }
+            });
             customDeviceAdapter.updateEntries(deviceItems);
             for (int i = 0; i < deviceItems.size(); i++) {
                 if (deviceItems.get(i).targetID.equals(SendActivity.targetID)) {
@@ -256,6 +319,183 @@ public class SendActivity extends Activity {
             }.execute();
         }
     }
+    static void handleSendFile(final String email) {
+        EditText editText = (EditText) dialog
+                .findViewById(R.id.messageText);
+        final String sharedText = editText.getText().toString();
+
+        mBuilder.setContentTitle("Pass")
+                .setContentText("Sending...")
+                .setSmallIcon(R.drawable.action_icon);
+
+        String type = null;
+        new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                // TODO Auto-generated method stub
+                String result = postData();
+                return result;
+            }
+
+            public String postData() {
+                String line = "";
+                BufferedReader in = null;
+
+                try {
+                    File file = new File(filePath);
+
+                    InputStream fileInputStream = new FileInputStream(file);
+
+                    String lineEnd = "\r\n";
+                    String twoHyphens = "--";
+                    String boundary = "*****";
+                    URL connectURL = new URL("http://local-motion.ca/pass/server/upload_v1.php");
+
+                    // Open a HTTP connection to the URL
+                    HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
+                    conn.setConnectTimeout(1000);
+                    // Allow Inputs
+                    conn.setDoInput(true);
+
+                    // Allow Outputs
+                    conn.setDoOutput(true);
+
+                    // Don't use a cached copy.
+                    conn.setUseCaches(false);
+
+                    // Use a post method.
+                    conn.setRequestMethod("POST");
+
+                    conn.setRequestProperty("Connection", "Keep-Alive");
+                    conn.addRequestProperty("Email", email);
+                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+
+                    DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
+
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+                    dos.writeBytes("Content-Disposition: form-data; name=\"email\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(email);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"targetID\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(targetID);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"targetType\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(targetType);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"saveMessage\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(String.valueOf(saveMessage));
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + lineEnd);
+
+                    if (!sharedText.equals("")) {
+                        dos.writeBytes("Content-Disposition: form-data; name=\"message\"" + lineEnd);
+                        dos.writeBytes(lineEnd);
+                        dos.writeBytes(sharedText);
+                        dos.writeBytes(lineEnd);
+                        dos.writeBytes(twoHyphens + boundary + lineEnd);
+                    }
+
+                    dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + lineEnd);
+                    dos.writeBytes(lineEnd);
+
+                    // create a buffer of maximum size
+                    int bytesAvailable = fileInputStream.available();
+                    long totalSize = file.length();
+                    int sentBytes = 0;
+                    int maxBufferSize = 100 * 1024;
+                    int bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                    byte[] buffer = new byte[bufferSize];
+
+                    // read file and write it into form...
+                    int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+                    while (bytesRead > 0) {
+                        dos.write(buffer, 0, bufferSize);
+                        dos.flush();
+                        bytesAvailable = fileInputStream.available();
+                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+                        sentBytes += bufferSize;
+                        float progress = ((float) sentBytes / (float) totalSize) * 100.0f;
+                        publishProgress((int) progress);
+                        Log.i(MyActivity.TAG, mContext.getClass().getName() + "Written: " + progress + "  " + String.valueOf(sentBytes / 1024L) + "/" + String.valueOf(totalSize / 1024L));
+                    }
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Ending");
+                    dos.writeBytes(lineEnd);
+                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Closing file stream");
+                    fileInputStream.close();
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Flushing");
+                    dos.flush();
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Output stream close");
+                    dos.close();
+
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Getting input stream");
+                    InputStream is = conn.getInputStream();
+                    int ch;
+                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Getting message");
+                    StringBuffer b = new StringBuffer();
+                    while ((ch = is.read()) != -1) {
+                        b.append((char) ch);
+                    }
+
+                    String s = b.toString();
+
+                    line = s;
+
+                } catch (ClientProtocolException e) {
+                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    // TODO Auto-generated catch block
+                }
+                return line;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Message: " + msg);
+                String result = "";
+                try {
+                    JSONObject message = new JSONObject(msg);
+                    if (!message.optString("error", "").equals("")) {
+                        result = message.getString("error");
+                        mBuilder.setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(result));
+                    } else {
+                        result = "Send complete";
+                    }
+                    mBuilder.setContentText(result);
+                    mBuilder.setProgress(0, 0, false);
+                    mNotificationManager.notify(1, mBuilder.build());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
+
+            }
+
+            protected void onProgressUpdate(Integer... progress) {
+                mBuilder.setProgress(100, progress[0], false);
+                // Displays the progress bar for the first time.
+                mNotificationManager.notify(1, mBuilder.build());
+            }
+        }.execute();
+
+    }
 
     static void handleIntent() {
         String type = "";
@@ -324,300 +564,7 @@ public class SendActivity extends Activity {
 
     }
 
-    static void handleSendFile(final String email) {
-        EditText editText = (EditText) dialog
-                .findViewById(R.id.messageText);
-        final String sharedText = editText.getText().toString();
-
-        mBuilder.setContentTitle("Pass")
-                .setContentText("Sending...")
-                .setSmallIcon(R.drawable.action_icon);
-
-        String type = null;
-        new AsyncTask<String, Integer, String>() {
-            @Override
-            protected String doInBackground(String... params) {
-                // TODO Auto-generated method stub
-                String result = postData();
-                return result;
-            }
-
-            public String postData() {
-                String line = "";
-                BufferedReader in = null;
-
-                try {
-                    File file = new File(filePath);
-
-                    InputStream fileInputStream = new FileInputStream(file);
-
-                    String lineEnd = "\r\n";
-                    String twoHyphens = "--";
-                    String boundary = "*****";
-                    URL connectURL = new URL("http://local-motion.ca/pass/server/upload_v1.php");
-
-                    // Open a HTTP connection to the URL
-                    HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
-
-                    // Allow Inputs
-                    conn.setDoInput(true);
-
-                    // Allow Outputs
-                    conn.setDoOutput(true);
-
-                    // Don't use a cached copy.
-                    conn.setUseCaches(false);
-
-                    // Use a post method.
-                    conn.setRequestMethod("POST");
-
-                    conn.setRequestProperty("Connection", "Keep-Alive");
-                    conn.addRequestProperty("Email", email);
-                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-
-                    DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
-
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name=\"email\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(email);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"targetID\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(targetID);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"targetType\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(targetType);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"saveMessage\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(String.valueOf(saveMessage));
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    if (!sharedText.equals("")) {
-                        dos.writeBytes("Content-Disposition: form-data; name=\"message\"" + lineEnd);
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(sharedText);
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    }
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-
-                    // create a buffer of maximum size
-                    int bytesAvailable = fileInputStream.available();
-                    long totalSize = file.length();
-                    int sentByes = 0;
-                    int maxBufferSize = 1024;
-                    int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    byte[] buffer = new byte[bufferSize];
-
-                    // read file and write it into form...
-                    int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0) {
-                        dos.write(buffer, 0, bufferSize);
-                        bytesAvailable = fileInputStream.available();
-                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                        sentByes += bufferSize;
-                        float progress = ((float) sentByes / (float) totalSize) * 100.0f;
-                        publishProgress((int) progress);
-                    }
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                    // close streams
-                    fileInputStream.close();
-
-                    dos.flush();
-
-
-                    InputStream is = conn.getInputStream();
-
-                    // retrieve the response from server
-                    int ch;
-
-                    StringBuffer b = new StringBuffer();
-                    while ((ch = is.read()) != -1) {
-                        b.append((char) ch);
-                    }
-                    String s = b.toString();
-                    dos.close();
-
-                    line = s;
-
-                } catch (ClientProtocolException e) {
-                    e.printStackTrace();
-                    // TODO Auto-generated catch block
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    // TODO Auto-generated catch block
-                }
-                return line;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Message " + msg);
-                mBuilder.setContentText("Send complete")
-                        .setProgress(0, 0, false);
-                mNotificationManager.notify(1, mBuilder.build());
-
-            }
-
-            protected void onProgressUpdate(Integer... progress) {
-                mBuilder.setProgress(100, progress[0], false);
-                // Displays the progress bar for the first time.
-                mNotificationManager.notify(1, mBuilder.build());
-            }
-        }.execute();
-
-    }
-
-    void setSave() {
-        Button save = (Button) dialog.findViewById(R.id.saveButton);
-        if (saveMessage == false) {
-            saveMessage = true;
-            save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_yellow));
-            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.base_blue));
-        } else {
-            saveMessage = false;
-            save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
-            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.white));
-        }
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mContext = this;
-        mApplication = getApplication();
-        mPrefs = getSharedPreferences(mContext.getPackageName(),
-                Context.MODE_PRIVATE);
-        mNotificationManager = (NotificationManager)
-                this.getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder = new NotificationCompat.Builder(this);
-        email = mPrefs.getString("email", "");
-        regID = mPrefs.getString("registration_id", "");
-        mIntent = getIntent();
-        dialog = new Dialog(mContext, R.style.ThemeDialogCustom);
-        dialog.requestWindowFeature(Window.FEATURE_ACTION_BAR);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        dialog.setContentView(R.layout.dialog_send);
-        dialog.show();
-        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-            @Override
-            public void onDismiss(DialogInterface dialogInterface) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-        handleIntent();
-        targetID = mPrefs.getString("targetID", "");
-        targetType = mPrefs.getString("targetType", "");
-
-        fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
-
-        ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);
-        refreshButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDevices();
-            }
-        });
-        Button fileButton = (Button) dialog.findViewById(R.id.file);
-        fileButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showChooser();
-            }
-        });
-        Button saveButton = (Button) dialog.findViewById(R.id.saveButton);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setSave();
-            }
-        });
-        ImageButton settingsButton = (ImageButton) dialog.findViewById(R.id.deviceSettingDialog);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-                View settingsView = getLayoutInflater().inflate(R.layout.dialog_device_settings, null);
-                AlertDialog alertDialog = alertDialogBuilder.setView(settingsView).create();
-                ListView listView = (ListView) alertDialog.findViewById(R.id.listView2);
-                String[] choices = {"Change device name", "Delete device"};
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1, choices);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        if (i == 0) {
-
-                        } else {
-
-                        }
-                    }
-                });
-                alertDialog.show();
-            }
-        });
-        setContentView(R.layout.activity_send);
-        createCoverFlow();
-    }
-
-    private void showChooser() {
-        // Use the GET_CONTENT intent from the utility class
-        Intent target = FileUtils.createGetContentIntent();
-        // Create the chooser Intent
-        Intent intent = Intent.createChooser(
-                target, "Choose your file");
-        try {
-            startActivityForResult(intent, REQUEST_CODE);
-        } catch (ActivityNotFoundException e) {
-            // The reason for the existence of aFileChooser
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
-                    if (data != null) {
-                        final Uri uri = data.getData();
-                        try {
-                            // Get the file path from the URI
-                            filePath = FileUtils.getPath(this, uri);
-                            Toast.makeText(mContext,
-                                    "File Selected: " + filePath, Toast.LENGTH_LONG).show();
-                            String type = GeneralUtilities.getMimeType(filePath);
-                            if (type.contains("image") == true) {
-                                setImageView(filePath);
-                                setFileTextView(filePath);
-                            }
-                        } catch (Exception e) {
-                            Log.e("FileSelectorTestActivity", "File select error", e);
-                        }
-                    }
-                }
-                break;
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    void deleteDevice(int position, final String email) {
+    static void deleteDevice(int position, final String email) {
         final String targetID = deviceItems.get(position).targetID;
 
         new AsyncTask<String, Integer, String>() {
@@ -664,6 +611,142 @@ public class SendActivity extends Activity {
             }
         }.execute();
 
+    }
+
+    void setSave() {
+        Button save = (Button) dialog.findViewById(R.id.saveButton);
+        if (saveMessage == false) {
+            saveMessage = true;
+            save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_yellow));
+            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.base_blue));
+        } else {
+            saveMessage = false;
+            save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
+            save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.white));
+        }
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mContext = this;
+        mApplication = getApplication();
+        mPrefs = getSharedPreferences(mContext.getPackageName(),
+                Context.MODE_PRIVATE);
+        mNotificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(this);
+        email = mPrefs.getString("email", "");
+        regID = mPrefs.getString("registration_id", "");
+        mIntent = getIntent();
+        if (savedInstanceState == null) {
+            dialog = new Dialog(mContext, R.style.ThemeDialogCustom);
+            dialog.requestWindowFeature(Window.FEATURE_ACTION_BAR);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            dialog.setContentView(R.layout.dialog_send);
+            dialog.show();
+        }
+
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        handleIntent();
+        targetID = mPrefs.getString("targetID", "");
+        targetType = mPrefs.getString("targetType", "");
+
+        fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
+
+        ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);
+        refreshButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getDevices();
+            }
+        });
+        Button fileButton = (Button) dialog.findViewById(R.id.file);
+        fileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showChooser();
+            }
+        });
+        Button saveButton = (Button) dialog.findViewById(R.id.saveButton);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setSave();
+            }
+        });
+        /*ImageButton settingsButton = (ImageButton) dialog.findViewById(R.id.deviceSettingDialog);
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+                View settingsView = getLayoutInflater().inflate(R.layout.dialog_device_settings, null);
+                AlertDialog alertDialog = alertDialogBuilder.setView(settingsView).create();
+                ListView listView = (ListView) alertDialog.findViewById(R.id.listView2);
+                String[] choices = {"Change device name", "Delete device"};
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1, choices);
+                listView.setAdapter(adapter);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        if (i == 0) {
+
+                        } else {
+
+                        }
+                    }
+                });
+                alertDialog.show();
+            }
+        });*/
+        setContentView(R.layout.activity_send);
+        createCoverFlow();
+    }
+
+    private void showChooser() {
+        // Use the GET_CONTENT intent from the utility class
+        Intent target = FileUtils.createGetContentIntent();
+        // Create the chooser Intent
+        Intent intent = Intent.createChooser(
+                target, "Choose your file");
+        try {
+            startActivityForResult(intent, REQUEST_CODE);
+        } catch (ActivityNotFoundException e) {
+            // The reason for the existence of aFileChooser
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CODE:
+                if (resultCode == RESULT_OK) {
+                    if (data != null) {
+                        final Uri uri = data.getData();
+                        try {
+                            // Get the file path from the URI
+                            filePath = FileUtils.getPath(this, uri);
+                            Toast.makeText(mContext,
+                                    "File Selected: " + filePath, Toast.LENGTH_LONG).show();
+                            String type = GeneralUtilities.getMimeType(filePath);
+                            if (type.contains("image") == true) {
+                                setImageView(filePath);
+                                setFileTextView(filePath);
+                            }
+                        } catch (Exception e) {
+                            Log.e("FileSelectorTestActivity", "File select error", e);
+                        }
+                    }
+                }
+                break;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

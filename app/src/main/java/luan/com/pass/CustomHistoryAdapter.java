@@ -84,7 +84,7 @@ public class CustomHistoryAdapter extends BaseAdapter {
                 }
                 imageView.setImageBitmap(HistoryFragment.historyItems.get(position).bitmap);
                 imageView.requestLayout();
-                imageView.getLayoutParams().height = 200;//doesnt work
+                imageView.getLayoutParams().height = 1000;//doesnt work
             }
             if (!HistoryFragment.historyItems.get(position).message.equals("")) {//attaches message to file or image transfer if a message exist
                 messageText.setText(messageText.getText().toString() + "\n" + HistoryFragment.historyItems.get(position).message);

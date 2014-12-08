@@ -1,13 +1,9 @@
 package luan.com.pass;
 
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -17,7 +13,17 @@ import java.util.ArrayList;
 import at.technikum.mti.fancycoverflow.FancyCoverFlow;
 
 class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlowAdapter {
-    ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
+    static ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
+    static Context mContext = null;
+
+    public CustomDeviceAdapter(Context context) {
+        mContext = context;
+    }
+
+    static public void updateEntries(ArrayList<DeviceItem> items) {
+        deviceItems = items;
+        SendActivity.customDeviceAdapter.notifyDataSetChanged();
+    }
 
     @Override
     public int getCount() {
@@ -65,23 +71,12 @@ class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlow
         } else {
             layout.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
         }
-        layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String targetID = deviceItems.get(position).targetID;
-                SendActivity.targetID = targetID;
-                String targetType = deviceItems.get(position).type;
-                SendActivity.targetType = targetType;
-                SharedPreferences.Editor editor = SendActivity.mPrefs.edit();
-                editor.putString("targetID", targetID);
-                editor.putString("targetType", targetType);
-                editor.commit();
-                updateEntries(deviceItems);
-                SendActivity.Send();
-            }
-        });
 
-        layout.setOnLongClickListener(new View.OnLongClickListener() {
+
+        layout.setTag(position);
+
+
+        /*layout.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(viewGroup.getContext());
@@ -126,14 +121,9 @@ class CustomDeviceAdapter extends at.technikum.mti.fancycoverflow.FancyCoverFlow
                 dialog.show();
                 return false;
             }
-        });
+        });*/
 
         return reuseableView;
-    }
-
-    public void updateEntries(ArrayList<DeviceItem> items) {
-        deviceItems = items;
-        notifyDataSetChanged();
     }
 }
 
