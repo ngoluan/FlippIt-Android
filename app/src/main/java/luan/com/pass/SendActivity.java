@@ -47,20 +47,15 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import at.technikum.mti.fancycoverflow.FancyCoverFlow;
 import luan.com.pass.utilities.DecodeSampledBitmapFromPath;
 import luan.com.pass.utilities.OnTaskCompleted;
+import luan.com.pass.utilities.UploadFile3;
 
 
 public class SendActivity extends Activity {
@@ -319,184 +314,10 @@ public class SendActivity extends Activity {
             }.execute();
         }
     }
-    static void handleSendFile(final String email) {
-        EditText editText = (EditText) dialog
-                .findViewById(R.id.messageText);
-        final String sharedText = editText.getText().toString();
 
-        mBuilder.setContentTitle("Pass")
-                .setContentText("Sending...")
-                .setSmallIcon(R.drawable.action_icon);
-
-        String type = null;
-        new AsyncTask<String, Integer, String>() {
-            @Override
-            protected String doInBackground(String... params) {
-                // TODO Auto-generated method stub
-                String result = postData();
-                return result;
-            }
-
-            public String postData() {
-                String line = "";
-                BufferedReader in = null;
-
-                try {
-                    File file = new File(filePath);
-
-                    InputStream fileInputStream = new FileInputStream(file);
-
-                    String lineEnd = "\r\n";
-                    String twoHyphens = "--";
-                    String boundary = "*****";
-                    URL connectURL = new URL("http://local-motion.ca/pass/server/upload_v1.php");
-
-                    // Open a HTTP connection to the URL
-                    HttpURLConnection conn = (HttpURLConnection) connectURL.openConnection();
-                    conn.setConnectTimeout(1000);
-                    // Allow Inputs
-                    conn.setDoInput(true);
-
-                    // Allow Outputs
-                    conn.setDoOutput(true);
-
-                    // Don't use a cached copy.
-                    conn.setUseCaches(false);
-
-                    // Use a post method.
-                    conn.setRequestMethod("POST");
-
-                    conn.setRequestProperty("Connection", "Keep-Alive");
-                    conn.addRequestProperty("Email", email);
-                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-
-                    DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
-
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name=\"email\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(email);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"targetID\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(targetID);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"targetType\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(targetType);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"saveMessage\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(String.valueOf(saveMessage));
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-
-                    if (!sharedText.equals("")) {
-                        dos.writeBytes("Content-Disposition: form-data; name=\"message\"" + lineEnd);
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(sharedText);
-                        dos.writeBytes(lineEnd);
-                        dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    }
-
-                    dos.writeBytes("Content-Disposition: form-data; name=\"file\";filename=\"" + file.getName() + "\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-
-                    // create a buffer of maximum size
-                    int bytesAvailable = fileInputStream.available();
-                    long totalSize = file.length();
-                    int sentBytes = 0;
-                    int maxBufferSize = 100 * 1024;
-                    int bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    byte[] buffer = new byte[bufferSize];
-
-                    // read file and write it into form...
-                    int bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0) {
-                        dos.write(buffer, 0, bufferSize);
-                        dos.flush();
-                        bytesAvailable = fileInputStream.available();
-                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-                        sentBytes += bufferSize;
-                        float progress = ((float) sentBytes / (float) totalSize) * 100.0f;
-                        publishProgress((int) progress);
-                        Log.i(MyActivity.TAG, mContext.getClass().getName() + "Written: " + progress + "  " + String.valueOf(sentBytes / 1024L) + "/" + String.valueOf(totalSize / 1024L));
-                    }
-                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Ending");
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Closing file stream");
-                    fileInputStream.close();
-                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Flushing");
-                    dos.flush();
-                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Output stream close");
-                    dos.close();
-
-                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Getting input stream");
-                    InputStream is = conn.getInputStream();
-                    int ch;
-                    Log.i(MyActivity.TAG, mContext.getClass().getName() + "Getting message");
-                    StringBuffer b = new StringBuffer();
-                    while ((ch = is.read()) != -1) {
-                        b.append((char) ch);
-                    }
-
-                    String s = b.toString();
-
-                    line = s;
-
-                } catch (ClientProtocolException e) {
-                    e.printStackTrace();
-                    // TODO Auto-generated catch block
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    // TODO Auto-generated catch block
-                }
-                return line;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Message: " + msg);
-                String result = "";
-                try {
-                    JSONObject message = new JSONObject(msg);
-                    if (!message.optString("error", "").equals("")) {
-                        result = message.getString("error");
-                        mBuilder.setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(result));
-                    } else {
-                        result = "Send complete";
-                    }
-                    mBuilder.setContentText(result);
-                    mBuilder.setProgress(0, 0, false);
-                    mNotificationManager.notify(1, mBuilder.build());
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-
-            }
-
-            protected void onProgressUpdate(Integer... progress) {
-                mBuilder.setProgress(100, progress[0], false);
-                // Displays the progress bar for the first time.
-                mNotificationManager.notify(1, mBuilder.build());
-            }
-        }.execute();
+    static void handleSendFile() {
 
     }
-
     static void handleIntent() {
         String type = "";
         if (mIntent != null) {
@@ -558,7 +379,13 @@ public class SendActivity extends Activity {
         if (filePath.equals("")) {
             handleSendText(email); // Handle text being sent
         } else {
-            handleSendFile(email); // Handle single image being sent
+            EditText editText = (EditText) dialog
+                    .findViewById(R.id.messageText);
+            final String sharedText = editText.getText().toString();
+
+            Thread t = new Thread(new UploadFile3(mContext, filePath, email, targetID, "", targetType, saveMessage));
+            t.start();
+            //handleSendFileTest(); // Handle single image being sent
         }
         ((Activity) mContext).finish();
 
