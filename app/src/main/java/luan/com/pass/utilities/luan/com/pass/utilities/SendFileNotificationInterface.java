@@ -62,5 +62,7 @@ public class SendFileNotificationInterface implements MyActivity.Callback {
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Updating history. ");
         UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(context);
+
+
     }
 }

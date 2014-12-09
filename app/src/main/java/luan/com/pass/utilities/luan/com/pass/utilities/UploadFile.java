@@ -5,30 +5,24 @@ import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
 
 import luan.com.pass.MyActivity;
 import luan.com.pass.R;
@@ -36,8 +30,9 @@ import luan.com.pass.R;
 /**
  * Created by Luan on 2014-12-08.
  */
-public class UploadFile implements Runnable, CountingInputStreamEntity.UploadListener {
+public class UploadFile implements Runnable {
     static Boolean saveMessage = false;
+    static long totalSize;
     Context context;
     String filename;
     String email;
@@ -45,7 +40,6 @@ public class UploadFile implements Runnable, CountingInputStreamEntity.UploadLis
     String sharedText;
     String targetType;
     int lastPercent = 0;
-
     NotificationCompat.Builder mBuilder = null;
     NotificationManager mNotificationManager = null;
 
@@ -66,74 +60,165 @@ public class UploadFile implements Runnable, CountingInputStreamEntity.UploadLis
                 .setSmallIcon(R.drawable.action_icon);
     }
 
+    public static String getContent(HttpResponse response) throws IOException {
+        BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+        String body = "";
+        String content = "";
+
+        while ((body = rd.readLine()) != null) {
+            content += body + "\n";
+        }
+        return content.trim();
+    }
+
     @Override
     public void run() {
-        final HttpResponse resp;
-        final HttpClient httpClient = new DefaultHttpClient();
         File file = new File(filename);
-        long totalSize = file.length();
+        totalSize = file.length();
+
+
+        String responseString = "no";
+
+        File sourceFile = new File(filename);
+        if (!sourceFile.isFile()) {
+
+        }
+
 
         try {
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-            nameValuePairs.add(new BasicNameValuePair("email", email));
-            nameValuePairs.add(new BasicNameValuePair("targetID", targetId));
-            nameValuePairs.add(new BasicNameValuePair("fileName", file.getName()));
-            nameValuePairs.add(new BasicNameValuePair("message", sharedText));
-            nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
-            nameValuePairs.add(new BasicNameValuePair("saveMessage", String.valueOf(saveMessage)));
-            UrlEncodedFormEntity entity2 = new UrlEncodedFormEntity(nameValuePairs);
-            String get = EntityUtils.toString(entity2);
-            String url = "http://local-motion.ca/pass/server/upload_v2.php?" + get;
 
-            Log.i(MyActivity.TAG, context.getClass().getName() + ": " + "Url: " + url);
 
-            HttpPost post = new HttpPost(url);
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost("http://local-motion.ca/pass/server/upload_v2.php");
+            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
-            InputStream fileInputStream = new FileInputStream(file);
-            CountingInputStreamEntity entity = new CountingInputStreamEntity(fileInputStream, totalSize);
-            entity.setUploadListener(this);
+            FileBody fb = new FileBody(sourceFile);
 
-            post.setEntity(entity);
+            builder.addPart("file", fb);
+            builder.addTextBody("email", email);
+            builder.addTextBody("targetID", targetId);
+            builder.addTextBody("targetType", targetType);
+            builder.addTextBody("message", sharedText);
+            builder.addTextBody("saveMessage", String.valueOf(saveMessage));
+            final HttpEntity yourEntity = builder.build();
 
-            resp = httpClient.execute(post);
-            if (resp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(
-                        resp.getEntity().getContent()));
-
-                Log.i(MyActivity.TAG, context.getClass().getName() + ": " + "Message: " + in.readLine());
-                String result = "";
-                try {
-                    JSONObject message = new JSONObject(in.readLine());
-                    if (!message.optString("error", "").equals("")) {
-                        result = message.getString("error");
-                        mBuilder.setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(result));
-                    } else {
-                        result = "Send complete";
-                    }
-                    mBuilder.setContentText(result);
-                    mBuilder.setProgress(0, 0, false);
-                    mNotificationManager.notify(1, mBuilder.build());
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            class ProgressiveEntity implements HttpEntity {
+                @Override
+                public void consumeContent() throws IOException {
+                    yourEntity.consumeContent();
                 }
-            } else {
-                Log.i(MyActivity.TAG, context.getClass().getName() + ": " + "Error: " + resp.getStatusLine().getStatusCode());
-            }
-            resp.getEntity().consumeContent();
 
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
+                @Override
+                public InputStream getContent() throws IOException,
+                        IllegalStateException {
+                    return yourEntity.getContent();
+                }
+
+                @Override
+                public Header getContentEncoding() {
+                    return yourEntity.getContentEncoding();
+                }
+
+                @Override
+                public long getContentLength() {
+                    return yourEntity.getContentLength();
+                }
+
+                @Override
+                public Header getContentType() {
+                    return yourEntity.getContentType();
+                }
+
+                @Override
+                public boolean isChunked() {
+                    return yourEntity.isChunked();
+                }
+
+                @Override
+                public boolean isRepeatable() {
+                    return yourEntity.isRepeatable();
+                }
+
+                @Override
+                public boolean isStreaming() {
+                    return yourEntity.isStreaming();
+                } // CONSIDER put a _real_ delegator into here!
+
+                @Override
+                public void writeTo(OutputStream outstream) throws IOException {
+
+                    class ProxyOutputStream extends FilterOutputStream {
+                        /**
+                         * @author Stephen Colebourne
+                         */
+
+                        public ProxyOutputStream(OutputStream proxy) {
+                            super(proxy);
+                        }
+
+                        public void write(int idx) throws IOException {
+                            out.write(idx);
+                        }
+
+                        public void write(byte[] bts) throws IOException {
+                            out.write(bts);
+                        }
+
+                        public void write(byte[] bts, int st, int end) throws IOException {
+                            out.write(bts, st, end);
+                        }
+
+                        public void flush() throws IOException {
+                            out.flush();
+                        }
+
+                        public void close() throws IOException {
+                            out.close();
+                        }
+                    } // CONSIDER import this class (and risk more Jar File Hell)
+
+                    class ProgressiveOutputStream extends ProxyOutputStream {
+                        long totalSent;
+
+                        public ProgressiveOutputStream(OutputStream proxy) {
+                            super(proxy);
+                            totalSent = 0;
+                        }
+
+                        public void write(byte[] bts, int st, int end) throws IOException {
+
+                            totalSent += end;
+                            publishProgress((int) ((totalSent / (float) totalSize) * 100));
+
+                            out.write(bts, st, end);
+                        }
+                    }
+
+                    yourEntity.writeTo(new ProgressiveOutputStream(outstream));
+                }
+
+            }
+            ;
+            ProgressiveEntity myEntity = new ProgressiveEntity();
+
+            post.setEntity(myEntity);
+            HttpResponse response = client.execute(post);
+            BufferedReader in = null;
+            in = new BufferedReader(new InputStreamReader(
+                    response.getEntity().getContent()));
+            Log.i(MyActivity.TAG, context.getClass().getName() + ": " + "Response: " + in.readLine());
+            mBuilder.setContentText("Send complete.");
+            mBuilder.setProgress(0, 0, false);
+            mNotificationManager.notify(1, mBuilder.build());
+        } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void onChange(int percent) {
+    public void publishProgress(int percent) {
         if (percent > lastPercent) {
             mBuilder.setProgress(100, percent, false);
             mNotificationManager.notify(1, mBuilder.build());
@@ -144,46 +229,3 @@ public class UploadFile implements Runnable, CountingInputStreamEntity.UploadLis
 
 }
 
-class CountingInputStreamEntity extends InputStreamEntity {
-
-    private UploadListener listener;
-    private long length;
-
-    public CountingInputStreamEntity(InputStream instream, long length) {
-        super(instream, length);
-        this.length = length;
-    }
-
-    public void setUploadListener(UploadListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void writeTo(OutputStream outstream) throws IOException {
-        super.writeTo(new CountingOutputStream(outstream));
-    }
-
-    public interface UploadListener {
-        public void onChange(int percent);
-    }
-
-    class CountingOutputStream extends OutputStream {
-        private long counter = 0l;
-        private OutputStream outputStream;
-
-        public CountingOutputStream(OutputStream outputStream) {
-            this.outputStream = outputStream;
-        }
-
-        @Override
-        public void write(int oneByte) throws IOException {
-            this.outputStream.write(oneByte);
-            counter++;
-            if (listener != null) {
-                int percent = (int) ((counter * 100) / length);
-                listener.onChange(percent);
-            }
-        }
-    }
-
-}

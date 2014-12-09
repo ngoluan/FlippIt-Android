@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -59,8 +58,8 @@ public class MyActivity extends ActionBarActivity {
                 Context.MODE_PRIVATE);
 
         setContentView(R.layout.activity_my);
-        ActionBar actionBar = getSupportActionBar();
-        String email = mPrefs.getString("email", "");
+
+        email = mPrefs.getString("email", "");
 
         CLASS_NAME = mContext.getClass().getName();
 

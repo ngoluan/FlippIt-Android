@@ -55,7 +55,7 @@ import java.util.List;
 import at.technikum.mti.fancycoverflow.FancyCoverFlow;
 import luan.com.pass.utilities.DecodeSampledBitmapFromPath;
 import luan.com.pass.utilities.OnTaskCompleted;
-import luan.com.pass.utilities.UploadFile3;
+import luan.com.pass.utilities.UploadFile;
 
 
 public class SendActivity extends Activity {
@@ -318,6 +318,7 @@ public class SendActivity extends Activity {
     static void handleSendFile() {
 
     }
+
     static void handleIntent() {
         String type = "";
         if (mIntent != null) {
@@ -383,7 +384,7 @@ public class SendActivity extends Activity {
                     .findViewById(R.id.messageText);
             final String sharedText = editText.getText().toString();
 
-            Thread t = new Thread(new UploadFile3(mContext, filePath, email, targetID, "", targetType, saveMessage));
+            Thread t = new Thread(new UploadFile(mContext, filePath, email, targetID, "", targetType, saveMessage));
             t.start();
             //handleSendFileTest(); // Handle single image being sent
         }
