@@ -68,38 +68,29 @@ public class GcmIntentService extends IntentService {
         mContext = this;
         mPrefs = getSharedPreferences(mContext.getPackageName(),
                 Context.MODE_PRIVATE);
-
         mNotificationManager = (NotificationManager)
                 this.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder = new NotificationCompat.Builder(this);
         activityManager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+
         Bundle extras = intent.getExtras();
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+
         String message = intent.getStringExtra("message");
-        // The getMessageType() intent parameter must be the intent you received
-        // in your BroadcastReceiver.
         String messageType = gcm.getMessageType(intent);
 
-        if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
-            /*
-             * Filter messages based on message type. Since it is likely that GCM will be
-             * extended in the future with new message types, just ignore any message types you're
-             * not interested in, or that you don't recognize.
-             */
+        if (!extras.isEmpty()) {
             if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
                 //sendNotification("Send error: " + extras.toString());
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
                 //sendNotification("Deleted messages on server: " + extras.toString());
                 // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                // Post notification of received message.
                 manageNotification(message);
             }
         }
-        // Release the wake lock provided by the WakefulBroadcastReceiver.
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
-
     private void manageNotification(String content) {
         JSONObject data = null;
         String msg = null;
@@ -107,7 +98,7 @@ public class GcmIntentService extends IntentService {
         try {
             data = new JSONObject(content);
 
-            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received message: " + data);
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received full message: " + data);
 
             msg = data.getString("message");
             msg = java.net.URLDecoder.decode(msg, "UTF-8");
@@ -116,7 +107,7 @@ public class GcmIntentService extends IntentService {
 
             String type = GeneralUtilities.typeOfMessage(fileName);
 
-            if (fileName.equals("")) {
+/*            if (fileName.equals("")) {
                 String extraFileName = searchForExtra(msg);
                 String extraType = extraMIMEOnline(extraFileName);
 
@@ -126,7 +117,7 @@ public class GcmIntentService extends IntentService {
                     type = extraType;
                 }
 
-            }
+            }*/
             if (type.contains("image")) {
                 imgNotification(fileName, msg);
             } else if (type.equals("file")) {
@@ -134,7 +125,15 @@ public class GcmIntentService extends IntentService {
             } else if (type.equals("web")) {
                 webNotification(msg);
             } else {
-                textNotification(msg);
+                String extraFileName = searchForExtra(msg);
+                String extraType = extraMIMEOnline(extraFileName);
+
+                if (!extraType.equals("")) {
+                    extraDialog(msg, extraFileName, extraType);
+                } else {
+                    textNotification(msg);
+                }
+
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -142,6 +141,38 @@ public class GcmIntentService extends IntentService {
             e.printStackTrace();
         }
 
+
+    }
+
+    private void extraDialog(String msg, String extraFilename, String extraType) {
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, MyActivity.class), 0);
+
+        Log.i(MyActivity.TAG, "Extra notification : " + msg);
+
+        msg = msg + " Could be: " + extraType;
+
+        String url = msg;
+        Intent i = new Intent(Intent.ACTION_VIEW);
+        i.setData(Uri.parse(url));
+        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, i, 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.action_icon)
+                        .setContentTitle("Pass")
+                        .setStyle(new NotificationCompat.BigTextStyle()
+                                .bigText(msg))
+                        .addAction(R.drawable.download_white, "Download", pendingWeb)
+                        .addAction(R.drawable.send_white, "Open", pendingWeb)
+                        .addAction(R.drawable.copy_white, "Copy", pendingWeb)
+                        .setContentText("Rich message");
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.cancel(1);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        UpdateHistory updateHistory = new UpdateHistory();
+        updateHistory.updateHistory(mContext);
 
     }
 
@@ -168,31 +199,7 @@ public class GcmIntentService extends IntentService {
     }
 
     private void webNotification(String msg) {
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MyActivity.class), 0);
 
-        Log.i(MyActivity.TAG, "Web notification : " + msg);
-
-
-        String url = msg;
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, i, 0);
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.action_icon)
-                        .setContentTitle("Pass")
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .addAction(R.drawable.action_folder, "Open website", pendingWeb)
-                        .setContentText(msg);
-
-        mBuilder.setContentIntent(contentIntent);
-        mNotificationManager.cancel(1);
-        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-        UpdateHistory updateHistory = new UpdateHistory();
-        updateHistory.updateHistory(mContext);
     }
 
     private void imgNotification(String fileName, String msg) {
@@ -222,17 +229,24 @@ public class GcmIntentService extends IntentService {
     }
 
     private String searchForExtra(String message) {
-        int start = 0;
+        int start = -1;
         int end = 0;
         String urlStr = "";
         if (message.indexOf("http") > -1) {
             start = message.indexOf("http");
+        } else if (message.indexOf("https") > -1) {
+            start = message.indexOf("https");
+        } else if (message.indexOf("www") > -1) {
+            start = message.indexOf("www");
+        }
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + " start : " + start);
+        if (start > -1) {
             end = message.indexOf(" ", start);
             if (end == -1) {
                 end = message.length();
             }
             urlStr = message.substring(start, end);
-
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + " Extra content in message detected: " + urlStr);
         }
         return urlStr;
     }
@@ -246,8 +260,11 @@ public class GcmIntentService extends IntentService {
             connection.setRequestMethod("HEAD");
             connection.connect();
             contentType = connection.getContentType();
-            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Http content: " + contentType);
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Extra content type: " + contentType);
             if (!contentType.equals(null)) {
+                contentType = "web";
+            }
+/*            if (!contentType.equals(null)) {
                 if (contentType.contains("audio") == true || contentType.contains("video") == true || contentType.contains("application") == true) {
                     contentType = "file";
                 } else if (contentType.contains("image") == true) {
@@ -257,7 +274,7 @@ public class GcmIntentService extends IntentService {
                 }
             } else {
                 contentType = "web";
-            }
+            }*/
 
         } catch (IOException e) {
             e.printStackTrace();
