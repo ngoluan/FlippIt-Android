@@ -1,15 +1,12 @@
 package luan.com.pass;
 
 import android.app.Dialog;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -68,8 +65,8 @@ public class MyActivity extends ActionBarActivity {
             gcm = GoogleCloudMessaging.getInstance(this);
 
             regid = getRegistrationId(mContext);
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "RegID: " + regid);
             if (regid.isEmpty() || regid.equals("")) {
-
                 registerInBackground();
             }
         } else {
@@ -124,25 +121,16 @@ public class MyActivity extends ActionBarActivity {
     }
 
     private void registerInBackground() {
-/*        String msg = null;
-        try {
-            Log.d(TAG,"test"+gcm.toString());
-            regid = gcm.register("155379597538");
-            Log.d(TAG,"test"+regid.toString());
-            msg = "Device registered, registration ID=" + regid;
-            storeRegistrationId(regid);
-            Log.d(TAG, regid);
-        } catch (IOException ex) {
-            msg = "Error :" + ex.getMessage();
-        }*/
+
         new AsyncTask<Void, Void, String>() {
             @Override
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    Log.d(TAG, "test" + gcm.toString());
+
                     regid = gcm.register("155379597538");
                     Log.d(TAG, "test" + regid.toString());
+
                     msg = "Device registered, registration ID=" + regid;
                     GeneralUtilities.storeRegistrationId(regid, mContext);
                 } catch (IOException ex) {
@@ -159,7 +147,7 @@ public class MyActivity extends ActionBarActivity {
     }
 
     public void logout() {
-        mPrefs.edit().clear();
+        mPrefs.edit().clear().commit();
         mFragmentManager.beginTransaction()
                 .replace(R.id.container, new LoginFragment())
                 .commit();
@@ -255,9 +243,4 @@ public class MyActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public interface Callback {
-        void callBack(String position, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder);
-
-        void callBack(String fileName, String msg, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder);
-    }
 }

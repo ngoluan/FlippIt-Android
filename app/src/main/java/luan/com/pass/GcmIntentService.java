@@ -38,11 +38,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import luan.com.pass.utilities.Callback;
 import luan.com.pass.utilities.CopyClipboard;
-import luan.com.pass.utilities.SendFileNotificationInterface;
-import luan.com.pass.utilities.SendFileUpdateNotificationInterface;
-import luan.com.pass.utilities.SendImageNotificationInterface;
-import luan.com.pass.utilities.SendImageUpdateNotificationInterface;
+import luan.com.pass.utilities.FileCallback;
 
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
@@ -107,28 +105,15 @@ public class GcmIntentService extends IntentService {
 
             String type = GeneralUtilities.typeOfMessage(fileName);
 
-/*            if (fileName.equals("")) {
-                String extraFileName = searchForExtra(msg);
-                String extraType = extraMIMEOnline(extraFileName);
-
-                Log.i(MyActivity.TAG, "Extra type " + type);
-                if (!extraType.equals("")) {
-                    fileName = msg;
-                    type = extraType;
-                }
-
-            }*/
             if (type.contains("image")) {
-                imgNotification(fileName, msg);
+                fileNotification(fileName, msg);
             } else if (type.equals("file")) {
                 fileNotification(fileName, msg);
-            } else if (type.equals("web")) {
-                webNotification(msg);
             } else {
                 String extraFileName = searchForExtra(msg);
-                String extraType = extraMIMEOnline(extraFileName);
-
-                if (!extraType.equals("")) {
+                
+                if (!extraFileName.equals("")) {
+                    String extraType = extraMIMEOnline(extraFileName);
                     extraDialog(msg, extraFileName, extraType);
                 } else {
                     textNotification(msg);
@@ -145,17 +130,18 @@ public class GcmIntentService extends IntentService {
     }
 
     private void extraDialog(String msg, String extraFilename, String extraType) {
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MyActivity.class), 0);
-
         Log.i(MyActivity.TAG, "Extra notification : " + msg);
 
         msg = msg + " Could be: " + extraType;
 
         String url = msg;
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, i, 0);
+        Intent intentWeb = new Intent(Intent.ACTION_VIEW);
+        intentWeb.setData(Uri.parse(url));
+        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, intentWeb, 0);
+
+/*        Intent intentDownload = new Intent(Intent.ACTION_VIEW);
+        intentDownload.setData(Uri.parse(url));
+        PendingIntent pendingDownload = PendingIntent.getActivity(mContext, 0, intentDownload, 0);*/
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -167,8 +153,6 @@ public class GcmIntentService extends IntentService {
                         .addAction(R.drawable.send_white, "Open", pendingWeb)
                         .addAction(R.drawable.copy_white, "Copy", pendingWeb)
                         .setContentText("Rich message");
-
-        mBuilder.setContentIntent(contentIntent);
         mNotificationManager.cancel(1);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         UpdateHistory updateHistory = new UpdateHistory();
@@ -198,34 +182,37 @@ public class GcmIntentService extends IntentService {
         updateHistory.updateHistory(mContext);
     }
 
-    private void webNotification(String msg) {
-
-    }
-
     private void imgNotification(String fileName, String msg) {
         mBuilder.setContentTitle("Pass")
                 .setContentText("Download in progress")
                 .setSmallIcon(R.drawable.action_icon);
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Creating image notification");
         String email = mPrefs.getString("email", "");
-        DownloadFiles downloadFiles = new DownloadFiles();
-        MyActivity.Callback sendImageNotificationInterface = new SendImageNotificationInterface();
-        MyActivity.Callback sendImageUpdateNotificationInterface = new SendImageUpdateNotificationInterface();
-        downloadFiles.getImageFromServer(email, fileName, null, msg, sendImageNotificationInterface, sendImageUpdateNotificationInterface,
-                mContext, mNotificationManager, mBuilder);
+        DownloadFiles downloadFiles = new DownloadFiles(mContext);
+/*        Callback sendImageNotificationInterface = new SendImageNotificationInterface();
+        Callback sendImageUpdateNotificationInterface = new SendImageUpdateNotificationInterface();
+        downloadFiles.getFileFromServer_v2(email, fileName, null, msg, sendImageNotificationInterface, sendImageUpdateNotificationInterface,
+                mContext, mNotificationManager, mBuilder);*/
     }
 
     private void fileNotification(final String fileName, String msg) {
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "File transfer.");
+
         mBuilder.setContentTitle("Pass")
-                .setContentText("Download in progress")
+                .setContentText("Downloading...")
                 .setSmallIcon(R.drawable.action_icon);
-        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Creating file notification");
         String email = mPrefs.getString("email", "");
-        DownloadFiles downloadFiles = new DownloadFiles();
-        MyActivity.Callback sendFileNotificationInterface = new SendFileNotificationInterface();
-        MyActivity.Callback sendFileUpdateNotificationInterface = new SendFileUpdateNotificationInterface();
-        downloadFiles.getFileFromServer(email, fileName, null, msg, sendFileNotificationInterface, sendFileUpdateNotificationInterface,
-                mContext, mNotificationManager, mBuilder);
+
+        String url = GeneralUtilities.SERVER_PATH + "uploads/" + email + "/" + fileName;
+
+        Bundle extras = new Bundle();
+        extras.putString("email", email);
+        extras.putString("filename", fileName);
+        extras.putString("msg", msg);
+
+        DownloadFiles downloadFiles = new DownloadFiles(mContext);
+        Callback fileCallback = new FileCallback(mContext);
+        downloadFiles.getFileFromServer_v2(url, extras, fileCallback);
     }
 
     private String searchForExtra(String message) {
@@ -264,17 +251,6 @@ public class GcmIntentService extends IntentService {
             if (!contentType.equals(null)) {
                 contentType = "web";
             }
-/*            if (!contentType.equals(null)) {
-                if (contentType.contains("audio") == true || contentType.contains("video") == true || contentType.contains("application") == true) {
-                    contentType = "file";
-                } else if (contentType.contains("image") == true) {
-                    contentType = "image";
-                } else {
-                    contentType = "web";
-                }
-            } else {
-                contentType = "web";
-            }*/
 
         } catch (IOException e) {
             e.printStackTrace();

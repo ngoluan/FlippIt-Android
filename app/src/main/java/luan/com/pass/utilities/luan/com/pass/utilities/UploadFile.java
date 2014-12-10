@@ -15,6 +15,8 @@ import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -207,10 +209,27 @@ public class UploadFile implements Runnable {
             BufferedReader in = null;
             in = new BufferedReader(new InputStreamReader(
                     response.getEntity().getContent()));
-            Log.i(MyActivity.TAG, context.getClass().getName() + ": " + "Response: " + in.readLine());
-            mBuilder.setContentText("Send complete.");
-            mBuilder.setProgress(0, 0, false);
-            mNotificationManager.notify(1, mBuilder.build());
+
+            String msg = in.readLine();
+            Log.i(MyActivity.TAG, context.getClass().getName() + ": " + "Response: " + msg);
+
+            String result = "";
+            try {
+                JSONObject message = new JSONObject(msg);
+                if (!message.optString("error", "").equals("")) {
+                    result = message.getString("error");
+                    mBuilder.setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(result));
+                } else {
+                    result = "Send complete";
+                }
+                mBuilder.setContentText(result);
+                mBuilder.setProgress(0, 0, false);
+                mNotificationManager.notify(1, mBuilder.build());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
         } catch (ClientProtocolException e) {
             e.printStackTrace();
         } catch (IOException e) {

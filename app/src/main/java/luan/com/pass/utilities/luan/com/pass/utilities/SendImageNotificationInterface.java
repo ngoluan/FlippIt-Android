@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -24,15 +25,15 @@ import luan.com.pass.UpdateHistory;
 /**
  * Created by Luan on 2014-11-02.
  */
-public class SendImageNotificationInterface implements MyActivity.Callback {
+public class SendImageNotificationInterface implements Callback {
     String TAG = null;
 
-    @Override
+
     public void callBack(String position, Bitmap image, Context context, NotificationManager mNotificationManager, NotificationCompat.Builder mBuilder) {
 
     }
 
-    @Override
+
     public void callBack(String fileName, String msg, Bitmap image, Context context, NotificationManager notificationManager, NotificationCompat.Builder builder) {
         TAG = context.getPackageName();
         String path = null;
@@ -95,5 +96,15 @@ public class SendImageNotificationInterface implements MyActivity.Callback {
         Log.i(TAG, getClass().getName() + ": " + "Updating history. ");
         UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(context);
+    }
+
+    @Override
+    public void callBackProgress(int progress) {
+
+    }
+
+    @Override
+    public void callBackFinish(Bundle extras) {
+
     }
 }

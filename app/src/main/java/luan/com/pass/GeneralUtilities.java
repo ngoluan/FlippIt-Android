@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -31,8 +32,11 @@ import java.util.List;
  * Created by Luan on 2014-11-24.
  */
 public class GeneralUtilities {
+    static public final String TAG = "luan.com.pass";
+    static public final String SERVER_PATH = "http://www.local-motion.ca/pass/";
+    static public final String SAVE_PATH = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_DOWNLOADS) + "/";
     static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    static final String TAG = "luan.com.pass";
     static final int FOLDER_LIMIT = 50 * 1024;
 
     static int getAppVersion(Context context) {
@@ -156,6 +160,6 @@ public class GeneralUtilities {
                 //callback.callBack(position);
             }
         }.execute();
-    
+
     }
 }

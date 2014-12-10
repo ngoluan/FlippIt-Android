@@ -30,7 +30,7 @@ public class CustomHistoryAdapter extends BaseAdapter {
     LayoutInflater inflater = null;
 
     public CustomHistoryAdapter(Context context) {
-        mContext = MyActivity.mContext;
+        mContext = context;
         inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
