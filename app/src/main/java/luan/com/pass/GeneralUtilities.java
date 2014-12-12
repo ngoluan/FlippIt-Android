@@ -6,6 +6,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 import android.widget.Toast;
@@ -131,14 +132,13 @@ public class GeneralUtilities {
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/server/messageViewed_1.php");
+                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/server/messageViewed_v1.php");
 
                 try {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                     nameValuePairs.add(new BasicNameValuePair("email", email));
                     nameValuePairs.add(new BasicNameValuePair("messageId", msgId));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-                    //Log.i(MyActivity.TAG, getClass().getName() + ": " + "Server post: " + String.valueOf(id) + email);
                     HttpResponse response = httpclient.execute(httppost);
 
                     in = new BufferedReader(new InputStreamReader(
@@ -157,9 +157,15 @@ public class GeneralUtilities {
             @Override
             protected void onPostExecute(String msg) {
                 Log.i(MyActivity.TAG, getClass().getName() + ": " + "Delete server message: " + msg);
-                //callback.callBack(position);
             }
         }.execute();
 
+    }
+
+    public static NotificationCompat.Builder createNotificationBuilder(Context context) {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
+        mBuilder.setSmallIcon(R.drawable.notification_icon)
+                .setContentTitle("Pass");
+        return mBuilder;
     }
 }

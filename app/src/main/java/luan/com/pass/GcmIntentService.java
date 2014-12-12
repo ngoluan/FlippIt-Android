@@ -89,10 +89,12 @@ public class GcmIntentService extends IntentService {
         }
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
+
     private void manageNotification(String content) {
         JSONObject data = null;
         String msg = null;
         String fileName = null;
+        String msgId = null;
         try {
             data = new JSONObject(content);
 
@@ -103,18 +105,16 @@ public class GcmIntentService extends IntentService {
 
             fileName = data.getString("fileName");
 
+            msgId = data.getString("messageId");
             String type = GeneralUtilities.typeOfMessage(fileName);
 
-            if (type.contains("image")) {
-                fileNotification(fileName, msg);
-            } else if (type.equals("file")) {
-                fileNotification(fileName, msg);
+            if (type.contains("image") || type.equals("file")) {
+                fileNotification(fileName, msg, msgId);
             } else {
-                String extraFileName = searchForExtra(msg);
-                
-                if (!extraFileName.equals("")) {
-                    String extraType = extraMIMEOnline(extraFileName);
-                    extraDialog(msg, extraFileName, extraType);
+                String extraUrl = searchForExtra(msg);
+                if (!extraUrl.equals("")) {
+                    String extraType = extraMIMEOnline(extraUrl);
+                    extraDialog(msg, extraUrl, extraType);
                 } else {
                     textNotification(msg);
                 }
@@ -139,20 +139,12 @@ public class GcmIntentService extends IntentService {
         intentWeb.setData(Uri.parse(url));
         PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, intentWeb, 0);
 
-/*        Intent intentDownload = new Intent(Intent.ACTION_VIEW);
-        intentDownload.setData(Uri.parse(url));
-        PendingIntent pendingDownload = PendingIntent.getActivity(mContext, 0, intentDownload, 0);*/
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(this)
-                        .setSmallIcon(R.drawable.action_icon)
-                        .setContentTitle("Pass")
-                        .setStyle(new NotificationCompat.BigTextStyle()
-                                .bigText(msg))
-                        .addAction(R.drawable.download_white, "Download", pendingWeb)
-                        .addAction(R.drawable.send_white, "Open", pendingWeb)
-                        .addAction(R.drawable.copy_white, "Copy", pendingWeb)
-                        .setContentText("Rich message");
+        NotificationCompat.Builder mBuilder = GeneralUtilities.createNotificationBuilder(mContext);
+        mBuilder.setStyle(new NotificationCompat.BigTextStyle()
+                .bigText(msg))
+                .setTicker("Rich message")
+                .addAction(R.drawable.send_white, "Open", pendingWeb)
+                .setContentText("Rich message");
         mNotificationManager.cancel(1);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         UpdateHistory updateHistory = new UpdateHistory();
@@ -172,6 +164,7 @@ public class GcmIntentService extends IntentService {
                         .setContentTitle("Pass")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
+                        .setTicker("Copied to clipboard")
                         .setContentText(msg);
 
         mBuilder.setContentIntent(contentIntent);
@@ -182,20 +175,7 @@ public class GcmIntentService extends IntentService {
         updateHistory.updateHistory(mContext);
     }
 
-    private void imgNotification(String fileName, String msg) {
-        mBuilder.setContentTitle("Pass")
-                .setContentText("Download in progress")
-                .setSmallIcon(R.drawable.action_icon);
-        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Creating image notification");
-        String email = mPrefs.getString("email", "");
-        DownloadFiles downloadFiles = new DownloadFiles(mContext);
-/*        Callback sendImageNotificationInterface = new SendImageNotificationInterface();
-        Callback sendImageUpdateNotificationInterface = new SendImageUpdateNotificationInterface();
-        downloadFiles.getFileFromServer_v2(email, fileName, null, msg, sendImageNotificationInterface, sendImageUpdateNotificationInterface,
-                mContext, mNotificationManager, mBuilder);*/
-    }
-
-    private void fileNotification(final String fileName, String msg) {
+    private void fileNotification(final String fileName, String msg, String msgId) {
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "File transfer.");
 
         mBuilder.setContentTitle("Pass")
@@ -209,6 +189,7 @@ public class GcmIntentService extends IntentService {
         extras.putString("email", email);
         extras.putString("filename", fileName);
         extras.putString("msg", msg);
+        extras.putString("msgId", msgId);
 
         DownloadFiles downloadFiles = new DownloadFiles(mContext);
         Callback fileCallback = new FileCallback(mContext);
@@ -259,3 +240,4 @@ public class GcmIntentService extends IntentService {
     }
 
 }
+

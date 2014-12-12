@@ -77,6 +77,7 @@ public class FileCallback extends DownloadInterface {
                 .addAction(R.drawable.share_white, "Share", pendingShare)
                 .addAction(R.drawable.open_white, "Open", pendingOpen)
                 .setProgress(0, 0, false)
+                .setTicker("Download complete")
                 .setContentText("Download complete");
 
         if (bitmap != null) {

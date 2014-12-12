@@ -4,7 +4,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 
-import luan.com.pass.R;
+import luan.com.pass.GeneralUtilities;
 
 /**
  * Created by Luan on 2014-11-13.
@@ -19,7 +19,6 @@ public abstract class DownloadInterface implements Callback {
         this.mNotificationManager = (NotificationManager)
                 this.context.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder = new NotificationCompat.Builder(this.context);
-        mBuilder.setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Pass");
+        mBuilder = GeneralUtilities.createNotificationBuilder(context);
     }
 }

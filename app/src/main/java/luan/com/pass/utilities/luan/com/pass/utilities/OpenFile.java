@@ -24,6 +24,7 @@ import luan.com.pass.R;
 public class OpenFile {
     public OpenFile(HistoryItem historyItem, Context mContext) {
         String fileName = historyItem.fileName;
+        String msgId = String.valueOf(historyItem.dbID);
         Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
         String mimeType = GeneralUtilities.getMimeType(fileName);
@@ -48,6 +49,7 @@ public class OpenFile {
             Bundle extras = new Bundle();
             extras.putString("email", email);
             extras.putString("filename", fileName);
+            extras.putString("msgId", msgId);
 
             DownloadFiles downloadFiles = new DownloadFiles(mContext);
             Callback fileCallback = new FileCallback(mContext);

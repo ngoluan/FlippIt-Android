@@ -42,7 +42,7 @@ public class DeleteHistory {
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/deleteMessage.php");
+                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/server/deleteMessage_v1.php");
                 String email = mPrefs.getString("email", "");
                 try {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
