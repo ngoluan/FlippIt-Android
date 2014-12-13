@@ -12,7 +12,10 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 import luan.com.pass.GeneralUtilities;
+import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
 import luan.com.pass.R;
 import luan.com.pass.UpdateHistory;
@@ -92,6 +95,11 @@ public class FileCallback extends DownloadInterface {
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Updating history. ");
         UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(context);
+
+    }
+
+    @Override
+    public void callBackFinish(ArrayList<HistoryItem> historyItems) {
 
     }
 }

@@ -2,12 +2,8 @@ package luan.com.pass.utilities;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.RemoteViews;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -29,20 +25,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 import luan.com.pass.GeneralUtilities;
-import luan.com.pass.HistoryFragment;
 import luan.com.pass.HistoryItem;
-import luan.com.pass.MyActivity;
-import luan.com.pass.widget.WidgetProvider;
 
 /**
  * Created by Luan on 2014-11-10.
  */
-public class UpdateHistoryListview {
-    public UpdateHistoryListview(final int totalLoad, final String email, final ProgressBar progressBar, final RemoteViews view,
-                                 final HistoryFragment.HistoryGetCallback historyGetCallback, final WidgetProvider.GetDataCallback getDataCallback) {
-        if (progressBar != null) {
+public class UpdateHistoryListview_v2 {
+    static Callback callback;
+
+    public UpdateHistoryListview_v2(final Callback callback) {
+        this.callback = callback;
+    }
+
+    public static void updateListview(final int totalLoad, final String email) {
+/*        if (progressBar != null) {
             progressBar.setIndeterminate(true);
-        }
+        }*/
 
         new AsyncTask<String, Integer, ArrayList<HistoryItem>>() {
             @Override
@@ -58,13 +56,12 @@ public class UpdateHistoryListview {
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/getHistory.php");
+                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/server/getHistory_v1.php");
 
                 try {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
                     nameValuePairs.add(new BasicNameValuePair("email", email));
-
                     nameValuePairs.add(new BasicNameValuePair("total", String.valueOf(totalLoad)));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
@@ -89,8 +86,6 @@ public class UpdateHistoryListview {
                             String type = GeneralUtilities.typeOfMessage(item.getString("fileName"));
 
                             if (type.equals("image")) {
-                                Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
-                                        Environment.DIRECTORY_DOWNLOADS) + "/" + item.getString("fileName"));
                                 String path = Environment.getExternalStoragePublicDirectory(
                                         Environment.DIRECTORY_DOWNLOADS) + "/" + item.getString("fileName");
                                 File file = new File(path);
@@ -115,22 +110,12 @@ public class UpdateHistoryListview {
 
             @Override
             protected void onPostExecute(ArrayList<HistoryItem> historyItems) {
-                Log.i(MyActivity.TAG, getClass().getName() + ": " + "Callback: " + String.valueOf(getDataCallback));
-                if (historyGetCallback != null) {
-                    historyGetCallback.callBack(historyItems);
-                }
-                if (getDataCallback != null) {
-                    getDataCallback.callBackFinish(historyItems);
-                }
-                if (progressBar != null) {
+                callback.callBackFinish(historyItems);
+/*                if (progressBar != null) {
                     progressBar.setIndeterminate(false);
-                }
-
+                }*/
             }
         }.execute();
     }
-    /**
-     * Created by Luan on 2014-11-11.
-     */
 
 }
