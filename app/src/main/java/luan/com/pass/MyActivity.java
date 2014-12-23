@@ -1,7 +1,9 @@
 package luan.com.pass;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -237,8 +239,26 @@ public class MyActivity extends ActionBarActivity {
             HistoryFragment.deleteHistoryAll();
         } else if (id == R.id.action_deviceName) {
             changeDeviceName();
+        } else if (id == R.id.action_help) {
+            getHelp();
         }
         return super.onOptionsItemSelected(item);
     }
 
+    void getHelp() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
+        String[] choices = {"Sharing text tutorial", "Sharing file tutorial"};
+        alertDialogBuilder.setItems(choices, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (i == 0) {
+                    GeneralUtilities.textTutorial(mContext);
+                } else {
+                    GeneralUtilities.fileTutorial(mContext);
+                }
+            }
+        });
+        AlertDialog dialog = alertDialogBuilder.create();
+        dialog.show();
+    }
 }

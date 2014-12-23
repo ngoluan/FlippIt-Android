@@ -9,6 +9,9 @@ import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
+import java.util.ArrayList;
+
+import luan.com.pass.HistoryItem;
 import luan.com.pass.MyActivity;
 import luan.com.pass.R;
 
@@ -24,6 +27,7 @@ public class CustomWidgetService extends RemoteViewsService {
 }
 
 class ListViewFactory implements RemoteViewsService.RemoteViewsFactory {
+    static ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
     private Context mContext = null;
     private int appWidgetId;
 

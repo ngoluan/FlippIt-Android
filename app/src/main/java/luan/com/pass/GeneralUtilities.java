@@ -1,9 +1,11 @@
 package luan.com.pass;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
@@ -34,7 +36,7 @@ import java.util.List;
  */
 public class GeneralUtilities {
     static public final String TAG = "luan.com.pass";
-    static public final String SERVER_PATH = "http://www.local-motion.ca/pass/";
+    static public final String SERVER_PATH = "http://www.flippit.ca/";
     static public final String SAVE_PATH = Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOWNLOADS) + "/";
     static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
@@ -162,6 +164,15 @@ public class GeneralUtilities {
 
     }
 
+    public static void textTutorial(Context context) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://m6S2m-vS204"));
+        context.startActivity(intent);
+    }
+
+    public static void fileTutorial(Context context) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube://zyfscyL1gJU"));
+        context.startActivity(intent);
+    }
     public static NotificationCompat.Builder createNotificationBuilder(Context context) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setSmallIcon(R.drawable.notification_icon)

@@ -40,6 +40,7 @@ import java.net.URL;
 
 import luan.com.pass.utilities.Callback;
 import luan.com.pass.utilities.CopyClipboard;
+import luan.com.pass.utilities.CopyService;
 import luan.com.pass.utilities.FileCallback;
 
 /**
@@ -108,10 +109,14 @@ public class GcmIntentService extends IntentService {
             msgId = data.getString("messageId");
             String type = GeneralUtilities.typeOfMessage(fileName);
 
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Type:" + type);
+
             if (type.contains("image") || type.equals("file")) {
                 fileNotification(fileName, msg, msgId);
             } else {
                 String extraUrl = searchForExtra(msg);
+
+                Log.i(MyActivity.TAG, getClass().getName() + ": " + "extraUrl:" + extraUrl);
                 if (!extraUrl.equals("")) {
                     String extraType = extraMIMEOnline(extraUrl);
                     extraDialog(msg, extraUrl, extraType);
@@ -130,33 +135,35 @@ public class GcmIntentService extends IntentService {
     }
 
     private void extraDialog(String msg, String extraFilename, String extraType) {
-        Log.i(MyActivity.TAG, "Extra notification : " + msg);
-
-        msg = msg + " Could be: " + extraType;
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Extra notification.");
 
         String url = msg;
         Intent intentWeb = new Intent(Intent.ACTION_VIEW);
         intentWeb.setData(Uri.parse(url));
         PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, intentWeb, 0);
 
+        Intent intentCopy = new Intent(mContext, CopyService.class);
+        intentCopy.putExtra("msg", msg);
+        PendingIntent pendingCopy = PendingIntent.getService(mContext, 0, intentCopy, 0);
+
         NotificationCompat.Builder mBuilder = GeneralUtilities.createNotificationBuilder(mContext);
         mBuilder.setStyle(new NotificationCompat.BigTextStyle()
                 .bigText(msg))
                 .setTicker("Rich message")
                 .addAction(R.drawable.send_white, "Open", pendingWeb)
+                .addAction(R.drawable.copy_white, "Copy", pendingCopy)
                 .setContentText("Rich message");
         mNotificationManager.cancel(1);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         UpdateHistory updateHistory = new UpdateHistory();
         updateHistory.updateHistory(mContext);
-
     }
 
     private void textNotification(String msg) {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
                 new Intent(this, MyActivity.class), 0);
 
-        Log.i(MyActivity.TAG, "Text message: " + msg);
+        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Text message.");
 
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
@@ -229,7 +236,7 @@ public class GcmIntentService extends IntentService {
             connection.connect();
             contentType = connection.getContentType();
             Log.i(MyActivity.TAG, getClass().getName() + ": " + "Extra content type: " + contentType);
-            if (!contentType.equals(null)) {
+            if (contentType != null) {
                 contentType = "web";
             }
 

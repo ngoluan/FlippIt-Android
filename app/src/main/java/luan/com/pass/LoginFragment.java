@@ -92,7 +92,7 @@ public class LoginFragment extends Fragment {
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpPost httppost = null;
                 if (type.equals("login")) {
-                    httppost = new HttpPost("http://local-motion.ca/pass/signinUser.php");
+                    httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/signinUser.php");
                 } else {
                     httppost = new HttpPost("http://local-motion.ca/pass/regUser.php");
                 }
@@ -126,11 +126,13 @@ public class LoginFragment extends Fragment {
                 try {
                     JSONObject result = new JSONObject(msg);
                     Toast.makeText(MyActivity.mContext, result.getString("message"), Toast.LENGTH_LONG).show();
-                    if (result.getInt("code") == 0) {
+                    if (result.getString("error").isEmpty()) {
                         storeEmail(email);
                         MyActivity.mFragmentManager.beginTransaction()
-                                .replace(R.id.container, new HistoryFragment())
+                                .replace(R.id.container, new WelcomeFragment())
                                 .commit();
+                    } else {
+                        Toast.makeText(MyActivity.mContext, result.getString("error"), Toast.LENGTH_SHORT).show();
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
