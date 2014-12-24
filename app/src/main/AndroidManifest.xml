@@ -49,7 +49,7 @@
 
         <activity
             android:name=".SendActivity"
-            android:label="Pass - Send"
+            android:label="FlippIt"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

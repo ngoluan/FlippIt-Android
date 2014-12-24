@@ -58,7 +58,7 @@ public class UpdateHistoryListview {
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/getHistory.php");
+                HttpPost httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/getHistory_v1.php");
 
                 try {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();

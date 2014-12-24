@@ -192,7 +192,7 @@ public class MyActivity extends ActionBarActivity {
                         HttpClient httpclient = new DefaultHttpClient();
                         HttpPost httppost = null;
 
-                        httppost = new HttpPost("http://local-motion.ca/pass/changeDeviceName.php");
+                        httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/changeDeviceName_v1.php");
 
 
                         try {

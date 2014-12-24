@@ -77,7 +77,7 @@ public class HistoryFragment extends Fragment {
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/deleteMessage.php");
+                HttpPost httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/deleteMessage_v1.php");
                 String email = MyActivity.mPrefs.getString("email", "");
                 try {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();

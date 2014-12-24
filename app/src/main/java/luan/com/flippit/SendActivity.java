@@ -189,7 +189,6 @@ public class SendActivity extends Activity {
             fancyCoverFlow.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
                 public boolean onItemLongClick(AdapterView<?> adapterView, View view, final int position, long l) {
-                    Toast.makeText(mContext, "Long press", Toast.LENGTH_SHORT).show();
                     AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
                     String[] choices = {"Change device name", "Delete device"};
                     alertDialogBuilder.setItems(choices, new DialogInterface.OnClickListener() {
@@ -280,7 +279,7 @@ public class SendActivity extends Activity {
 
                     HttpClient httpclient = new DefaultHttpClient();
                     HttpPost httppost = null;
-                    httppost = new HttpPost("http://local-motion.ca/pass/server/send_v1.php");
+                    httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/send_v2.php");
 
                     try {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -310,14 +309,12 @@ public class SendActivity extends Activity {
                 @Override
                 protected void onPostExecute(String msg) {
                     Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Message " + msg);
+                    filePath = "";
                 }
             }.execute();
         }
     }
 
-    static void handleSendFile() {
-
-    }
 
     static void handleIntent() {
         String type = "";
@@ -384,8 +381,9 @@ public class SendActivity extends Activity {
                     .findViewById(R.id.messageText);
             final String sharedText = editText.getText().toString();
 
-            Thread t = new Thread(new UploadFile(mContext, filePath, email, targetID, "", targetType, saveMessage));
+            Thread t = new Thread(new UploadFile(mContext, filePath, email, targetID, sharedText, targetType, saveMessage));
             t.start();
+            filePath = "";
             //handleSendFileTest(); // Handle single image being sent
         }
         ((Activity) mContext).finish();
@@ -409,7 +407,7 @@ public class SendActivity extends Activity {
 
                 HttpClient httpclient = new DefaultHttpClient();
                 HttpPost httppost = null;
-                httppost = new HttpPost("http://local-motion.ca/pass/deleteDevice.php");
+                httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/deleteDevice_v2.php");
 
                 try {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();

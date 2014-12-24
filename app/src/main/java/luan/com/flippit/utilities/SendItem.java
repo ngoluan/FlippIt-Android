@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.util.Log;
 
 import luan.com.flippit.GeneralUtilities;
 import luan.com.flippit.HistoryItem;
+import luan.com.flippit.MyActivity;
 import luan.com.flippit.SendActivity;
 
 /**
@@ -23,6 +25,7 @@ public class SendItem {
             String fileName = historyItem.fileName;
             Uri hacked_uri = Uri.parse("file://" + Environment.getExternalStoragePublicDirectory(
                     Environment.DIRECTORY_DOWNLOADS) + "/" + fileName);
+            Log.i(MyActivity.TAG, "Filename: " + hacked_uri);
             String mimeType = GeneralUtilities.getMimeType(fileName);
 
             sendIntent.setAction(Intent.ACTION_SEND);

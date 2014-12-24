@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
+import luan.com.flippit.GeneralUtilities;
 import luan.com.flippit.MyActivity;
 import luan.com.flippit.R;
 
@@ -91,11 +92,13 @@ public class UploadFile implements Runnable {
 
 
             HttpClient client = new DefaultHttpClient();
-            HttpPost post = new HttpPost("http://local-motion.ca/pass/server/upload_v2.php");
+            HttpPost post = new HttpPost(GeneralUtilities.SERVER_PATH + "server/upload_v2.php");
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
             FileBody fb = new FileBody(sourceFile);
+
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Sending file from " + email + " to " + targetId + " which is " + targetType + " of " + sharedText);
 
             builder.addPart("file", fb);
             builder.addTextBody("email", email);

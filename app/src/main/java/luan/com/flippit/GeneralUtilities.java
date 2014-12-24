@@ -70,12 +70,22 @@ public class GeneralUtilities {
 
     static public String getMimeType(String fileName) {
         MimeTypeMap myMime = MimeTypeMap.getSingleton();
-        String mimeType = myMime.getMimeTypeFromExtension(fileExt(fileName).substring(1));
+
+        String mimeType = myMime.getMimeTypeFromExtension(fileExt(fileName));
+        Log.i(MyActivity.TAG, "mimetype: " + mimeType);
         return mimeType;
     }
 
-    static public String fileExt(String url) {
-        if (url.indexOf("?") > -1) {
+    static public String fileExt(String fileName) {
+        String extension = "";
+
+        int i = fileName.lastIndexOf('.');
+        if (i > 0) {
+            extension = fileName.substring(i + 1);
+        }
+        Log.i(MyActivity.TAG, "File extension: " + extension);
+        return extension;
+/*        if (url.indexOf("?") > -1) {
             url = url.substring(0, url.indexOf("?"));
         }
         if (url.lastIndexOf("") == -1) {
@@ -90,7 +100,7 @@ public class GeneralUtilities {
             }
             return ext.toLowerCase();
 
-        }
+        }*/
     }
 
     static boolean checkPlayServices(MyActivity myActivity) {

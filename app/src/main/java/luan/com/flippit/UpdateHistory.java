@@ -12,7 +12,7 @@ public class UpdateHistory {
         try {
             ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             for (ActivityManager.RunningTaskInfo task : activityManager.getRunningTasks(Integer.MAX_VALUE)) {
-                if ("luan.com.pass.MyActivity".equals(task.baseActivity.getClassName())) {
+                if ("luan.com.flippit.MyActivity".equals(task.baseActivity.getClassName())) {
                     Fragment historyFragment = MyActivity.mFragmentManager.findFragmentByTag("historyFragment");
                     if (historyFragment.isVisible() == true) {
                         HistoryFragment.createListView(HistoryFragment.totalLoad);
