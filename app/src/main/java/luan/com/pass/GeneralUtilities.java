@@ -56,9 +56,10 @@ public class GeneralUtilities {
     static public String typeOfMessage(String fileName) {
         String type = null;
         fileName = fileName.toLowerCase();
+
         if (fileName.contains(".jpg") == true || fileName.contains(".jpeg") == true || fileName.contains(".gif") == true || fileName.contains(".png") == true) {
             type = "image";
-        } else if (!fileName.equals("")) {
+        } else if (!fileName.equals("null") && !fileName.isEmpty()) {
             type = "file";
         } else {
             type = "text";

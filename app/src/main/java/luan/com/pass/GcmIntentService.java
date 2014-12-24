@@ -107,6 +107,7 @@ public class GcmIntentService extends IntentService {
             fileName = data.getString("fileName");
 
             msgId = data.getString("messageId");
+
             String type = GeneralUtilities.typeOfMessage(fileName);
 
             Log.i(MyActivity.TAG, getClass().getName() + ": " + "Type:" + type);
