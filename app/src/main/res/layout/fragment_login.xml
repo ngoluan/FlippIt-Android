@@ -3,78 +3,113 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/base_blue"
-    tools:context="luan.com.pass.LoginFragment">
+    tools:context="luan.com.flippit.LoginFragment">
 
-    <RelativeLayout
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:background="@drawable/rounded_white"
-        android:padding="8dp">
+        android:layout_gravity="center_vertical"
+        android:layout_marginTop="-32dp"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/imageView7"
+                android:layout_width="83dp"
+                android:layout_height="86dp"
+                android:src="@drawable/action_icon" />
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/textView11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingBottom="6dp"
-                android:text="Please login or register"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:layout_gravity="center_vertical"
+                android:text="FlippIt"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/white"
+                android:textSize="48dp" />
 
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="email@address.com"
-                android:inputType="textEmailAddress" />
 
-            <EditText
-                android:id="@+id/password"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:ems="10"
-                android:hint="*********"
-                android:inputType="textPassword" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/rounded_white"
+            android:padding="8dp">
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
 
-                <Button
-                    android:id="@+id/login"
-                    android:layout_width="112dp"
-                    android:layout_height="36dp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/rounded_blue"
-                    android:drawableRight="@drawable/send_white"
-                    android:text="Login"
-                    android:textColor="@color/white" />
+                <TextView
+                    android:id="@+id/textView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="6dp"
+                    android:text="Please login or register"
+                    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-                <Button
-                    android:id="@+id/register"
-                    android:layout_width="112dp"
-                    android:layout_height="36dp"
-                    android:layout_alignParentLeft="true"
-                    android:layout_alignParentStart="true"
-                    android:layout_alignParentTop="true"
-                    android:layout_margin="4dp"
-                    android:background="@drawable/rounded_blue"
-                    android:drawableRight="@drawable/send_white"
-                    android:text="Register"
-                    android:textColor="@color/white" />
+                <EditText
+                    android:id="@+id/email"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="email@address.com"
+                    android:inputType="textEmailAddress" />
+
+                <EditText
+                    android:id="@+id/password"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:hint="*********"
+                    android:inputType="textPassword" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/login"
+                        android:layout_width="112dp"
+                        android:layout_height="36dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/rounded_blue"
+                        android:drawableRight="@drawable/send_white"
+                        android:text="Login"
+                        android:textColor="@color/white" />
+
+                    <Button
+                        android:id="@+id/register"
+                        android:layout_width="112dp"
+                        android:layout_height="36dp"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_margin="4dp"
+                        android:background="@drawable/rounded_blue"
+                        android:drawableRight="@drawable/send_white"
+                        android:text="Register"
+                        android:textColor="@color/white" />
+
+                </LinearLayout>
 
             </LinearLayout>
+        </RelativeLayout>
 
-        </LinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 
 </FrameLayout>

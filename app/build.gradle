@@ -5,7 +5,7 @@ android {
     buildToolsVersion "20.0.0"
 
     defaultConfig {
-        applicationId "luan.com.pass"
+        applicationId "luan.com.flippit"
         minSdkVersion 14
         targetSdkVersion 20
         versionCode 1

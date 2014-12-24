@@ -146,7 +146,7 @@ public class LocalStorageProvider extends DocumentsProvider {
         final File parent = new File(parentDocumentId);
         for (File file : parent.listFiles()) {
             // Don't show hidden files/folders
-            if (!file.getName().startsWith(".")) {
+            if (!file.getName().startsWith("")) {
                 // Adds the file's display name, MIME type, size, and so on.
                 includeFile(result, file);
             }

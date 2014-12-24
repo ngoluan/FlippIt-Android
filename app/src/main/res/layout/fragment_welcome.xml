@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/base_blue"
-    tools:context="luan.com.pass.WelcomeFragment">
+    tools:context="luan.com.flippit.WelcomeFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
@@ -55,21 +55,21 @@
 
             <ImageView
                 android:id="@+id/imageView4"
-                android:layout_width="106dp"
-                android:layout_height="104dp"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:src="@drawable/phone_white" />
 
             <ImageView
                 android:id="@+id/imageView5"
-                android:layout_width="106dp"
-                android:layout_height="104dp"
-                android:layout_centerHorizontal="true"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_centerInParent="true"
                 android:src="@drawable/doublearrows_white" />
 
             <ImageView
                 android:id="@+id/imageView6"
-                android:layout_width="106dp"
-                android:layout_height="104dp"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/computer_white" />
@@ -84,26 +84,26 @@
 
             <Button
                 android:id="@+id/welcomeTextTutorial"
-                android:layout_width="116dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_white"
-                android:text="text share tutorial"
+                android:text="Text Share Tutorial"
                 android:textColor="@color/dark_grey"
                 android:textSize="16dp" />
 
             <Button
                 android:id="@+id/welcomeFileTutorial"
-                android:layout_width="116dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:background="@drawable/rounded_white"
-                android:text=" file sharing tutoiral"
+                android:text="File Share Tutorial"
                 android:textColor="@color/dark_grey"
                 android:textSize="16dp" />
 
             <Button
                 android:id="@+id/welcomeContinue"
-                android:layout_width="116dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/rounded_white"

@@ -49,7 +49,7 @@ public class FileUtils {
     public static final String MIME_TYPE_IMAGE = "image/*";
     public static final String MIME_TYPE_VIDEO = "video/*";
     public static final String MIME_TYPE_APP = "application/*";
-    public static final String HIDDEN_PREFIX = ".";
+    public static final String HIDDEN_PREFIX = "";
     /**
      * File (not directories) filter.
      *
@@ -110,7 +110,7 @@ public class FileUtils {
             return null;
         }
 
-        int dot = uri.lastIndexOf(".");
+        int dot = uri.lastIndexOf("");
         if (dot >= 0) {
             return uri.substring(dot);
         } else {
