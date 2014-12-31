@@ -30,7 +30,13 @@ public class CopyService extends IntentService {
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Copy service");
         if (intent != null) {
             Log.i(MyActivity.TAG, getClass().getName() + ": " + "Copying: " + intent.getStringExtra("msg"));
-            CopyClipboard(intent.getStringExtra("msg"), mContext);
+            Toast.makeText(mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
+            ClipboardManager clipboard = (ClipboardManager)
+                    mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("Pass", intent.getStringExtra("msg"));
+            clipboard.setPrimaryClip(clip);
+            this.stopSelf();
+            //CopyClipboard(intent.getStringExtra("msg"), mContext);
         }
     }
 

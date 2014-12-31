@@ -43,7 +43,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="20dp"
-            android:text="To begin, download the FlippIt Chrome extension to communicate between your phone and your computer. The link has been emailed to you."
+            android:text="To begin, download the FlippIt Chrome extension to communicate between your phone and your computer. \n\nYou may download it at \nhttp://getchrome.flippit.ca. \n\nThe link has also been emailed to you."
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:textColor="@color/white" />
 

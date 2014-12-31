@@ -40,11 +40,12 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory {
     @Override
     public void onCreate() {
         Log.i(MyActivity.TAG, getClass().getName() + ": ListViewFactory created.");
+        historyItems=WidgetProvider.historyItems;
     }
 
     @Override
     public void onDataSetChanged() {
-
+        historyItems=WidgetProvider.historyItems;
     }
 
     @Override
@@ -54,30 +55,30 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory {
 
     @Override
     public int getCount() {
-        return (WidgetProvider.historyItems.size());
+        return (historyItems.size());
     }
 
     @Override
     public RemoteViews getViewAt(int i) {
         RemoteViews row = new RemoteViews(mContext.getPackageName(), R.layout.row_history);
         String message = "";
-        row.setTextViewText(R.id.dateTime, WidgetProvider.historyItems.get(i).dateTime);
+        row.setTextViewText(R.id.dateTime, historyItems.get(i).dateTime);
 
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Drawing row " + i);
-        if (WidgetProvider.historyItems.get(i).type.equals("text")) {
-            message = WidgetProvider.historyItems.get(i).message;
+        if (historyItems.get(i).type.equals("text")) {
+            message = historyItems.get(i).message;
             row.setViewVisibility(R.id.open, View.GONE);
             row.setViewVisibility(R.id.copy, View.VISIBLE);
         } else {
-            if (WidgetProvider.historyItems.get(i).type.equals("file")) {
-                message = "File transfer: " + WidgetProvider.historyItems.get(i).fileName;
-            } else if (WidgetProvider.historyItems.get(i).type.equals("image")) {
-                if (WidgetProvider.historyItems.get(i).bitmap == null) {
-                    row.setTextViewText(R.id.message, "Image transfer: " + WidgetProvider.historyItems.get(i).fileName + "\nImage not available on device. Tap to download.");
+            if (historyItems.get(i).type.equals("file")) {
+                message = "File transfer: " + historyItems.get(i).fileName;
+            } else if (historyItems.get(i).type.equals("image")) {
+                if (historyItems.get(i).bitmap == null) {
+                    row.setTextViewText(R.id.message, "Image transfer: " + historyItems.get(i).fileName + "\nImage not available on device. Tap to download.");
                 }
             }
-            if (!WidgetProvider.historyItems.get(i).message.equals("")) {//attaches message to file or image transfer if a message exist
-                message = message + "\n" + WidgetProvider.historyItems.get(i).message;
+            if (!historyItems.get(i).message.equals("")) {//attaches message to file or image transfer if a message exist
+                message = message + "\n" + historyItems.get(i).message;
             }
             if (message.indexOf("\n") == 0) {//trims the new line character if message begins one. could happen if image posted without warning that you need to download it
                 message = message.substring(1);
@@ -87,7 +88,7 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory {
         }
         row.setTextViewText(R.id.message, message);
 
-        row.setImageViewBitmap(R.id.imageView, WidgetProvider.historyItems.get(i).bitmap);
+        row.setImageViewBitmap(R.id.imageView, historyItems.get(i).bitmap);
 
         Bundle copyExtras = new Bundle();
         copyExtras.putInt("position", i);
