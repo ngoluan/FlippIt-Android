@@ -80,8 +80,10 @@ public class SendActivity extends Activity {
     static String filePath = "";
     static Boolean saveMessage = false;
     static String message = "";
+    static boolean getDeviceAttempted = false;
 
     static public void getDevices() {
+        getDeviceAttempted = true;
         new AsyncTask<String, Integer, String>() {
             @Override
             protected String doInBackground(String... params) {
@@ -95,7 +97,7 @@ public class SendActivity extends Activity {
                 BufferedReader in = null;
 
                 HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost("http://local-motion.ca/pass/getDevices.php");
+                HttpPost httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/getDevices_v1.php");
 
                 try {
 
@@ -144,8 +146,10 @@ public class SendActivity extends Activity {
     }
 
     static void createCoverFlow() {
+
         JSONArray devices = getStoredDevices();
-        if (devices.length() == 0) {
+        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Creating coverflow. Devices: " + devices.length());
+        if (devices.length() <= 1 && getDeviceAttempted != true) {
             getDevices();
             return;
         }
@@ -507,30 +511,16 @@ public class SendActivity extends Activity {
                 setSave();
             }
         });
-        /*ImageButton settingsButton = (ImageButton) dialog.findViewById(R.id.deviceSettingDialog);
-        settingsButton.setOnClickListener(new View.OnClickListener() {
+        Button clearButton = (Button) dialog.findViewById(R.id.clear);
+        clearButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mContext);
-                View settingsView = getLayoutInflater().inflate(R.layout.dialog_device_settings, null);
-                AlertDialog alertDialog = alertDialogBuilder.setView(settingsView).create();
-                ListView listView = (ListView) alertDialog.findViewById(R.id.listView2);
-                String[] choices = {"Change device name", "Delete device"};
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, android.R.layout.simple_list_item_1, choices);
-                listView.setAdapter(adapter);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                        if (i == 0) {
-
-                        } else {
-
-                        }
-                    }
-                });
-                alertDialog.show();
+                EditText editText = (EditText) dialog
+                        .findViewById(R.id.messageText);
+                editText.setText("");
             }
-        });*/
+        });
+
         setContentView(R.layout.activity_send);
         createCoverFlow();
     }

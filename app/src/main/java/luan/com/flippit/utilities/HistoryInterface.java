@@ -11,4 +11,8 @@ public abstract class HistoryInterface implements Callback {
     public HistoryInterface(Context context) {
         this.context = context;
     }
+
+    public HistoryInterface(Context context, int[] mAppWidgetIds) {
+
+    }
 }

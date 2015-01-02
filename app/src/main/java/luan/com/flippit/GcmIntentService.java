@@ -141,11 +141,11 @@ public class GcmIntentService extends IntentService {
         String url = msg;
         Intent intentWeb = new Intent(Intent.ACTION_VIEW);
         intentWeb.setData(Uri.parse(url));
-        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, intentWeb, 0);
+        PendingIntent pendingWeb = PendingIntent.getActivity(mContext, 0, intentWeb, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intentCopy = new Intent(mContext, CopyService.class);
         intentCopy.putExtra("msg", msg);
-        PendingIntent pendingCopy = PendingIntent.getService(mContext, 0, intentCopy, 0);
+        PendingIntent pendingCopy = PendingIntent.getService(mContext, 0, intentCopy, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder mBuilder = GeneralUtilities.createNotificationBuilder(mContext);
         mBuilder.setStyle(new NotificationCompat.BigTextStyle()
@@ -162,7 +162,7 @@ public class GcmIntentService extends IntentService {
 
     private void textNotification(String msg) {
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, MyActivity.class), 0);
+                new Intent(this, MyActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
 
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "Text message.");
 

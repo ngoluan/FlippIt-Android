@@ -24,7 +24,7 @@
         <activity
             android:name=".MyActivity"
             android:label="@string/app_name">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -34,7 +34,7 @@
         <receiver
             android:name=".GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
                 <category android:name="luan.com.pass" />
@@ -51,7 +51,7 @@
             android:name=".SendActivity"
             android:label="FlippIt"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="android.intent.action.SEND" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -70,7 +70,7 @@
             android:icon="@drawable/ic_chooser"
             android:label="@string/choose_file"
             android:theme="@style/AppTheme">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -81,7 +81,7 @@
         </activity>
 
         <receiver android:name=".widget.WidgetProvider">
-            <intent-filter>
+        <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
@@ -95,8 +95,12 @@
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
         <service
-            android:name="luan.com.flippit.utilities.CopyService"
-            android:exported="false"></service>
+            android:name=".utilities.CopyService"
+            android:exported="false" />
+        <service
+            android:name=".utilities.CopyService_v2"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

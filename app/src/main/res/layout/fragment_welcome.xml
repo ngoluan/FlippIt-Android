@@ -44,8 +44,8 @@
             android:layout_marginRight="10dp"
             android:layout_marginTop="20dp"
             android:text="To begin, download the FlippIt Chrome extension to communicate between your phone and your computer. \n\nYou may download it at \nhttp://getchrome.flippit.ca. \n\nThe link has also been emailed to you."
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:textSize="18dp" />
 
         <RelativeLayout
             android:layout_width="300dp"

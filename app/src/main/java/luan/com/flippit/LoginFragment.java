@@ -126,11 +126,11 @@ public class LoginFragment extends Fragment {
             protected void onPostExecute(String msg) {
                 try {
                     JSONObject result = new JSONObject(msg);
-                    Toast.makeText(MyActivity.mContext, result.getString("message"), Toast.LENGTH_LONG).show();
+
                     String error = result.optString("error");
                     if (error.isEmpty()) {
                         storeEmail(email);
-
+                        Toast.makeText(MyActivity.mContext, result.getString("message"), Toast.LENGTH_LONG).show();
                         MyActivity.mFragmentManager.beginTransaction()
                                 .replace(R.id.container, new WelcomeFragment())
                                 .commit();

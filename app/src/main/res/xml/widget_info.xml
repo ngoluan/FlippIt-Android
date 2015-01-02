@@ -18,6 +18,6 @@
     android:minResizeHeight="70dp"
     android:minResizeWidth="280dp"
     android:minWidth="280dp"
-    android:previewImage="@drawable/action_icon"
+    android:previewImage="@drawable/widget_preview"
     android:resizeMode="vertical"
     android:updatePeriodMillis="1800000"></appwidget-provider>

@@ -60,18 +60,18 @@ public class FileCallback extends DownloadInterface {
         Intent intentOpen = new Intent();
         intentOpen.setAction(Intent.ACTION_VIEW);
         intentOpen.setDataAndType(hacked_uri, mimeType);
-        PendingIntent pendingOpen = PendingIntent.getActivity(context, 0, intentOpen, 0);
+        PendingIntent pendingOpen = PendingIntent.getActivity(context, 0, intentOpen, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intentShare = new Intent();
         intentShare.setAction(Intent.ACTION_SEND);
         intentShare.putExtra(Intent.EXTRA_STREAM, hacked_uri);
         intentShare.setType(mimeType);
-        PendingIntent pendingShare = PendingIntent.getActivity(context, 0, intentShare, 0);
+        PendingIntent pendingShare = PendingIntent.getActivity(context, 0, intentShare, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent intentFolder = new Intent(Intent.ACTION_GET_CONTENT);
 
         intentFolder.setDataAndType(hacked_uri, "text/csv");
-        PendingIntent pendingFolder = PendingIntent.getActivity(context, 0, intentFolder, 0);
+        PendingIntent pendingFolder = PendingIntent.getActivity(context, 0, intentFolder, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Log.i(GeneralUtilities.TAG, getClass().getName() + ": " + "Firing notification.");
 

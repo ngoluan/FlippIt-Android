@@ -49,51 +49,59 @@ public class WidgetProvider extends AppWidgetProvider {
     static AppWidgetManager mAppWidgetManager = null;
     static int appWidgetId = 0;
     static int[] mAppWidgetIds = null;
-    GetDataCallback getDataCallback = null;
-    UpdateHistoryListview_v2 updateHistoryListview = null;
-    String email = "";
+    static GetDataCallback getDataCallback = null;
+    static UpdateHistoryListview_v2 updateHistoryListview = null;
+    static String email = "";
 
     public WidgetProvider() {
 
     }
 
-    public static void updateWidget() {
-        final int N = mAppWidgetIds.length;
-        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Updating listview with :" + mAppWidgetIds.length);
+    public static void updateWidget(int[] localMAppWidgetIds) {
+        final int N = localMAppWidgetIds.length;
+
         for (int i = 0; i < N; i++) {
-            appWidgetId = mAppWidgetIds[i];
+            appWidgetId = localMAppWidgetIds[i];
 
             Intent intent = new Intent(mContext, CustomWidgetService.class);
+            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, localMAppWidgetIds[i]);
+            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             views.setRemoteAdapter(R.id.listViewWidget, intent);
 
-            intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetIds[i]);
-            intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
+            Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Updating listview for :" + appWidgetId);
 
             Intent rowIntent = new Intent(mContext, WidgetProvider.class);
             rowIntent.setAction("row_action");
-            rowIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetIds[i]);
+            rowIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, localMAppWidgetIds[i]);
             intent.setData(Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME)));
             PendingIntent toastPendingIntent = PendingIntent.getBroadcast(mContext, 0, rowIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
             views.setPendingIntentTemplate(R.id.listViewWidget, toastPendingIntent);
 
             Intent refreshIntent = new Intent(mContext, WidgetProvider.class);
+            refreshIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
             refreshIntent.setAction("Refresh");
-            PendingIntent pendingRefreshIntent = PendingIntent.getBroadcast(mContext, 0, refreshIntent, 0);
+            PendingIntent pendingRefreshIntent = PendingIntent.getBroadcast(mContext, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setOnClickPendingIntent(R.id.refreshButton, pendingRefreshIntent);
 
             Intent openIntent = new Intent(mContext, MyActivity.class);
-            PendingIntent pendingOpenIntent = PendingIntent.getActivity(mContext, 0, openIntent, 0);
+            PendingIntent pendingOpenIntent = PendingIntent.getActivity(mContext, 0, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setOnClickPendingIntent(R.id.logo, pendingOpenIntent);
             views.setOnClickPendingIntent(R.id.title, pendingOpenIntent);
 
             views.setViewVisibility(R.id.progressBar, View.INVISIBLE);
             views.setProgressBar(R.id.progressBar, 0, 0, false);
 
-            mAppWidgetManager.notifyAppWidgetViewDataChanged(mAppWidgetIds, R.id.listViewWidget);
+            mAppWidgetManager.notifyAppWidgetViewDataChanged(localMAppWidgetIds, R.id.listViewWidget);
             mAppWidgetManager.updateAppWidget(appWidgetId, WidgetProvider.views);
         }
+    }
 
+    public static void getData(int [] localAppWidgetIds) {
+        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Getting data. WidgetID " + localAppWidgetIds[0]);
+        getDataCallback = new GetDataCallback(mContext, localAppWidgetIds);
+        updateHistoryListview = new UpdateHistoryListview_v2(getDataCallback);
+        updateHistoryListview.updateListview(10, email);
     }
 
     @Override
@@ -104,6 +112,15 @@ public class WidgetProvider extends AppWidgetProvider {
         SharedPreferences mPrefs = mContext.getSharedPreferences(mContext.getPackageName(),
                 Context.MODE_PRIVATE);
         email = mPrefs.getString("email", "");
+        AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        Bundle extras = intent.getExtras();
+        int widgetId = 0;
+        int[] localWidgetIds = null;
+        if (extras != null && extras.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
+            widgetId = intent.getIntExtra(mgr.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "WidgetID: " + String.valueOf(widgetId));
+            localWidgetIds = new int[]{widgetId};
+        }
 
         if (intent.getAction().equals("row_action")) {
             int viewIndex = intent.getIntExtra("position", 0);
@@ -117,13 +134,13 @@ public class WidgetProvider extends AppWidgetProvider {
             } else if (viewAction.equals("share")) {
                 new ShareItem(WidgetProvider.historyItems.get(viewIndex), mContext);
             } else if (viewAction.equals("delete")) {
-                DeleteCallback deleteHistoryCallback = new DeleteCallback(mContext);
+                DeleteCallback deleteHistoryCallback = new DeleteCallback(mContext, localWidgetIds);
                 new DeleteHistory_v2(WidgetProvider.historyItems.get(viewIndex).dbID, viewIndex, mContext, deleteHistoryCallback);
             } else if (viewAction.equals("open")) {
                 new OpenFile(WidgetProvider.historyItems.get(viewIndex), mContext);
             }
         } else if (intent.getAction().equals("Refresh")) {
-            getData();
+            getData(localWidgetIds);
         }
         super.onReceive(context, intent);
     }
@@ -145,19 +162,16 @@ public class WidgetProvider extends AppWidgetProvider {
         views.setViewVisibility(R.id.progressBar, View.VISIBLE);
         views.setProgressBar(R.id.progressBar, 0, 0, true);
 
-        getData();
-    }
-
-    public void getData() {
-        Log.i(MyActivity.TAG, getClass().getName() + ": " + "Getting data.");
-        getDataCallback = new GetDataCallback(mContext);
-        updateHistoryListview = new UpdateHistoryListview_v2(getDataCallback);
-        updateHistoryListview.updateListview(10, email);
+        getData(mAppWidgetIds);
     }
 
     public static class GetDataCallback extends HistoryInterface {
-        public GetDataCallback(Context context) {
+        int[] localmAppWidgetIds = null;
+
+        public GetDataCallback(Context context, int[] mAppWidgetIds) {
             super(context);
+            this.localmAppWidgetIds = mAppWidgetIds;
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Callback: " + String.valueOf(localmAppWidgetIds[0]));
         }
 
         @Override
@@ -172,16 +186,19 @@ public class WidgetProvider extends AppWidgetProvider {
 
         @Override
         public void callBackFinish(ArrayList<HistoryItem> historyItems) {
-            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received items: " + String.valueOf(historyItems.size()));
+            Log.i(MyActivity.TAG, getClass().getName() + ": " + "Received items: " + String.valueOf(historyItems.size() + " " + localmAppWidgetIds[0]));
 
             WidgetProvider.historyItems = historyItems;
-            WidgetProvider.updateWidget();
+            WidgetProvider.updateWidget(this.localmAppWidgetIds);
         }
     }
 
     public static class DeleteCallback extends HistoryInterface {
-        public DeleteCallback(Context context) {
+        int[] mAppWidgetIds = null;
+
+        public DeleteCallback(Context context, int[] mAppWidgetIds) {
             super(context);
+            this.mAppWidgetIds = mAppWidgetIds;
         }
 
         @Override
@@ -193,7 +210,7 @@ public class WidgetProvider extends AppWidgetProvider {
         public void callBackFinish(Bundle extras) {
             int position = extras.getInt("position");
             WidgetProvider.historyItems.remove(position);
-            WidgetProvider.updateWidget();
+            WidgetProvider.updateWidget(mAppWidgetIds);
         }
 
         @Override

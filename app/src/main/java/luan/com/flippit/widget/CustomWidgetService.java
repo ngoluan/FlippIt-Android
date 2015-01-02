@@ -21,7 +21,6 @@ import luan.com.flippit.R;
 public class CustomWidgetService extends RemoteViewsService {
     @Override
     public RemoteViewsFactory onGetViewFactory(Intent intent) {
-        Log.i(MyActivity.TAG, getClass().getName() + ": Widget service launched.");
         return (new ListViewFactory(this.getApplicationContext(), intent));
     }
 }
@@ -40,12 +39,17 @@ class ListViewFactory implements RemoteViewsService.RemoteViewsFactory {
     @Override
     public void onCreate() {
         Log.i(MyActivity.TAG, getClass().getName() + ": ListViewFactory created.");
-        historyItems=WidgetProvider.historyItems;
+        historyItems = WidgetProvider.historyItems;
+        int[] appWidgetIds = new int[]{appWidgetId};
+        if (historyItems.size() == 0) {
+            WidgetProvider.mContext = mContext;
+            WidgetProvider.getData(appWidgetIds);
+        }
     }
 
     @Override
     public void onDataSetChanged() {
-        historyItems=WidgetProvider.historyItems;
+        historyItems = WidgetProvider.historyItems;
     }
 
     @Override
