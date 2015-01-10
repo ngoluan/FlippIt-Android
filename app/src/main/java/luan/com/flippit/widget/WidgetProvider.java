@@ -28,6 +28,7 @@ import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 
+import luan.com.flippit.GeneralUtilities;
 import luan.com.flippit.HistoryItem;
 import luan.com.flippit.MyActivity;
 import luan.com.flippit.R;
@@ -59,6 +60,7 @@ public class WidgetProvider extends AppWidgetProvider {
 
     public static void updateWidget(int[] localMAppWidgetIds) {
         final int N = localMAppWidgetIds.length;
+
 
         for (int i = 0; i < N; i++) {
             appWidgetId = localMAppWidgetIds[i];
@@ -101,7 +103,7 @@ public class WidgetProvider extends AppWidgetProvider {
         Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Getting data. WidgetID " + localAppWidgetIds[0]);
         getDataCallback = new GetDataCallback(mContext, localAppWidgetIds);
         updateHistoryListview = new UpdateHistoryListview_v2(getDataCallback);
-        updateHistoryListview.updateListview(10, email);
+        updateHistoryListview.updateListview(10, email, mContext);
     }
 
     @Override
@@ -112,6 +114,13 @@ public class WidgetProvider extends AppWidgetProvider {
         SharedPreferences mPrefs = mContext.getSharedPreferences(mContext.getPackageName(),
                 Context.MODE_PRIVATE);
         email = mPrefs.getString("email", "");
+
+        String historyResults = mPrefs.getString("historyResult", "");
+        if (!historyResults.equals("")) {
+            WidgetProvider.historyItems = GeneralUtilities.historyJSONtoArray(historyResults);
+        }
+
+
         AppWidgetManager mgr = AppWidgetManager.getInstance(context);
         Bundle extras = intent.getExtras();
         int widgetId = 0;

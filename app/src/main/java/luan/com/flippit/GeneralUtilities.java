@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
@@ -24,12 +26,18 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import luan.com.flippit.utilities.DecodeSampledBitmapFromPath;
 
 /**
  * Created by Luan on 2014-11-24.
@@ -190,5 +198,46 @@ public class GeneralUtilities {
         mBuilder.setSmallIcon(R.drawable.notification_icon)
                 .setContentTitle("Pass");
         return mBuilder;
+    }
+
+    public static ArrayList<HistoryItem> historyJSONtoArray(String line) {
+
+        ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
+        try {
+            JSONArray result = new JSONArray(line);
+            for (int i = 0; i < result.length(); i++) {
+                JSONObject item = result.getJSONObject(i);
+                historyItems.add(new HistoryItem(
+                        item.getString("dateTime"),
+                        item.getString("message"),
+                        item.getString("targetID"),
+                        item.getString("fileName"),
+                        item.getInt("id")));
+                String type = GeneralUtilities.typeOfMessage(item.getString("fileName"));
+
+                if (type.equals("image")) {
+                    String path = Environment.getExternalStoragePublicDirectory(
+                            Environment.DIRECTORY_DOWNLOADS) + "/" + item.getString("fileName");
+                    File file = new File(path);
+                    if (file.exists()) {
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inPreferredConfig = Bitmap.Config.RGB_565;
+                        historyItems.get(historyItems.size() - 1).bitmap = DecodeSampledBitmapFromPath.decodeSampledBitmapFromPath(path, 1000, 1000, options);
+                    }
+                }
+
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return historyItems;
+    }
+
+    public static void saveHistoryResult2Prefs(Context mContext, String message) {
+        final SharedPreferences prefs = mContext.getSharedPreferences(mContext.getPackageName(),
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString("historyResult", message);
+        editor.commit();
     }
 }

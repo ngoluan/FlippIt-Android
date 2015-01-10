@@ -20,4 +20,4 @@
     android:minWidth="280dp"
     android:previewImage="@drawable/widget_preview"
     android:resizeMode="vertical"
-    android:updatePeriodMillis="1800000"></appwidget-provider>
+    android:updatePeriodMillis="60000"></appwidget-provider>
