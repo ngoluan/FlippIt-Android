@@ -19,5 +19,4 @@
     android:minResizeWidth="280dp"
     android:minWidth="280dp"
     android:previewImage="@drawable/widget_preview"
-    android:resizeMode="vertical"
-    android:updatePeriodMillis="60000"></appwidget-provider>
+    android:resizeMode="vertical"></appwidget-provider>

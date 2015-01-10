@@ -61,6 +61,9 @@ public class WidgetProvider extends AppWidgetProvider {
     public static void updateWidget(int[] localMAppWidgetIds) {
         final int N = localMAppWidgetIds.length;
 
+        if (views == null) {
+            views = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
+        }
 
         for (int i = 0; i < N; i++) {
             appWidgetId = localMAppWidgetIds[i];
@@ -121,12 +124,12 @@ public class WidgetProvider extends AppWidgetProvider {
         }
 
 
-        AppWidgetManager mgr = AppWidgetManager.getInstance(context);
+        mAppWidgetManager = AppWidgetManager.getInstance(context);
         Bundle extras = intent.getExtras();
         int widgetId = 0;
         int[] localWidgetIds = null;
         if (extras != null && extras.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
-            widgetId = intent.getIntExtra(mgr.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+            widgetId = intent.getIntExtra(mAppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
             Log.i(MyActivity.TAG, getClass().getName() + ": " + "WidgetID: " + String.valueOf(widgetId));
             localWidgetIds = new int[]{widgetId};
         }
