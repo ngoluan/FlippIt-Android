@@ -240,4 +240,52 @@ public class GeneralUtilities {
         editor.putString("historyResult", message);
         editor.commit();
     }
+
+    public static void changeDeviceName(final String deviceName, final String targetID) {
+        new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                // TODO Auto-generated method stub
+                String result = postData();
+                return result;
+            }
+
+            public String postData() {
+                String line = "";
+                BufferedReader in = null;
+
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = null;
+
+                httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/changeDeviceName_v1.php");
+
+
+                try {
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                    nameValuePairs.add(new BasicNameValuePair("targetID", targetID));
+                    nameValuePairs.add(new BasicNameValuePair("deviceName", deviceName));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    HttpResponse response = httpclient.execute(httppost);
+
+                    in = new BufferedReader(new InputStreamReader(
+                            response.getEntity().getContent()));
+
+                    line = in.readLine();
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+                return line;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+
+            }
+        }.execute();
+    }
 }

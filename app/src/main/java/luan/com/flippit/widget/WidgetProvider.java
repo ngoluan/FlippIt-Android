@@ -32,6 +32,7 @@ import luan.com.flippit.GeneralUtilities;
 import luan.com.flippit.HistoryItem;
 import luan.com.flippit.MyActivity;
 import luan.com.flippit.R;
+import luan.com.flippit.SendActivity;
 import luan.com.flippit.utilities.CopyClipboard;
 import luan.com.flippit.utilities.DeleteHistory_v2;
 import luan.com.flippit.utilities.HistoryInterface;
@@ -88,6 +89,10 @@ public class WidgetProvider extends AppWidgetProvider {
             refreshIntent.setAction("Refresh");
             PendingIntent pendingRefreshIntent = PendingIntent.getBroadcast(mContext, 0, refreshIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setOnClickPendingIntent(R.id.refreshButton, pendingRefreshIntent);
+
+            Intent sendIntent = new Intent(mContext, SendActivity.class);
+            PendingIntent pendingSendIntent = PendingIntent.getActivity(mContext, 0, sendIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            views.setOnClickPendingIntent(R.id.sendButton, pendingSendIntent);
 
             Intent openIntent = new Intent(mContext, MyActivity.class);
             PendingIntent pendingOpenIntent = PendingIntent.getActivity(mContext, 0, openIntent, PendingIntent.FLAG_UPDATE_CURRENT);

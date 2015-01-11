@@ -80,7 +80,7 @@ public class CustomHistoryAdapter extends BaseAdapter {
                 messageText.setText("File transfer: " + HistoryFragment.historyItems.get(position).fileName);
             } else if (HistoryFragment.historyItems.get(position).type.equals("image")) {
                 if (HistoryFragment.historyItems.get(position).bitmap == null) {
-                    messageText.setText("Image transfer: " + HistoryFragment.historyItems.get(position).fileName + "\nImage not available on device. Tap to download.");
+                    messageText.setText("Image transfer: " + HistoryFragment.historyItems.get(position).fileName + "\nImage not available on device. Tap open to download.");
                 }
                 imageView.setImageBitmap(HistoryFragment.historyItems.get(position).bitmap);
                 imageView.requestLayout();

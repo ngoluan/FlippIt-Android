@@ -208,7 +208,9 @@ public class SendActivity extends Activity {
                                 saveButton.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-
+                                        EditText deviceName = (EditText) dialog.findViewById(R.id.deviceName);
+                                        GeneralUtilities.changeDeviceName(deviceName.getText().toString(), deviceItems.get(position).targetID);
+                                        dialog.dismiss();
                                     }
                                 });
                             } else {
@@ -284,7 +286,12 @@ public class SendActivity extends Activity {
                     HttpClient httpclient = new DefaultHttpClient();
                     HttpPost httppost = null;
                     httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/send_v2.php");
-
+                    Boolean localSaveMessage = false;
+                    if (targetType.equals("cloud")) {
+                        localSaveMessage = true;
+                    } else {
+                        localSaveMessage = saveMessage;
+                    }
                     try {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                         Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Sending text from " + email + " to " + targetID + " which is " + targetType + " of " + sharedText);
@@ -292,7 +299,7 @@ public class SendActivity extends Activity {
                         nameValuePairs.add(new BasicNameValuePair("targetID", targetID));
                         nameValuePairs.add(new BasicNameValuePair("message", sharedText));
                         nameValuePairs.add(new BasicNameValuePair("targetType", targetType));
-                        nameValuePairs.add(new BasicNameValuePair("saveMessage", String.valueOf(saveMessage)));
+                        nameValuePairs.add(new BasicNameValuePair("saveMessage", String.valueOf(localSaveMessage)));
                         httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                         HttpResponse response = httpclient.execute(httppost);
@@ -378,6 +385,12 @@ public class SendActivity extends Activity {
     static void Send() {
         createCoverFlow();
 
+        Boolean localSaveMessage = false;
+        if (targetType.equals("cloud")) {
+            localSaveMessage = true;
+        } else {
+            localSaveMessage = saveMessage;
+        }
         if (filePath.equals("")) {
             handleSendText(email); // Handle text being sent
         } else {
@@ -385,7 +398,7 @@ public class SendActivity extends Activity {
                     .findViewById(R.id.messageText);
             final String sharedText = editText.getText().toString();
 
-            Thread t = new Thread(new UploadFile(mContext, filePath, email, targetID, sharedText, targetType, saveMessage));
+            Thread t = new Thread(new UploadFile(mContext, filePath, email, targetID, sharedText, targetType, localSaveMessage));
             t.start();
             filePath = "";
             //handleSendFileTest(); // Handle single image being sent
@@ -454,6 +467,10 @@ public class SendActivity extends Activity {
             save.setBackground(SendActivity.mContext.getResources().getDrawable(R.drawable.rounded_blue));
             save.setTextColor(SendActivity.mContext.getResources().getColor(R.color.white));
         }
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putBoolean("saveMessage", saveMessage);
+        editor.commit();
+
     }
 
     @Override
@@ -487,7 +504,13 @@ public class SendActivity extends Activity {
         handleIntent();
         targetID = mPrefs.getString("targetID", "");
         targetType = mPrefs.getString("targetType", "");
-
+        saveMessage = mPrefs.getBoolean("saveMessage", false);
+        if (saveMessage == true) {
+            saveMessage = false;
+        } else {
+            saveMessage = true;
+        }
+        setSave();
         fancyCoverFlow = (FancyCoverFlow) dialog.findViewById(R.id.fancyCoverFlow);
 
         ImageButton refreshButton = (ImageButton) dialog.findViewById(R.id.refreshDialog);

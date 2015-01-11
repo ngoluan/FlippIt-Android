@@ -71,6 +71,7 @@
         android:ems="10"
         android:hint="Type message here"
         android:inputType="textMultiLine"
+        android:maxLines="8"
         android:minLines="4"
         android:textColor="@color/font_grey" />
 
