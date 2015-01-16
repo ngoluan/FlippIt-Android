@@ -12,7 +12,7 @@ public class CopyClipboard {
     public CopyClipboard(String msg, Context mContext) {
         ClipboardManager clipboard = (ClipboardManager)
                 mContext.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("Pass", msg);
+        ClipData clip = ClipData.newPlainText("FlippIt", msg);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(mContext, "Copied to clipboard", Toast.LENGTH_SHORT).show();
     }

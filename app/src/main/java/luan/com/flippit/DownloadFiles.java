@@ -32,7 +32,7 @@ public class DownloadFiles {
 
     static public void getFileFromServer_v2(final String url, final Bundle extras, final Callback callback) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
-        mBuilder.setContentTitle("Pass")
+        mBuilder.setContentTitle("FlippIt")
                 .setContentText("Download in progress")
                 .setSmallIcon(R.drawable.action_icon)
                 .setProgress(100, 0, false);

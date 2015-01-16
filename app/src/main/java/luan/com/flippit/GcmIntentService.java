@@ -169,7 +169,7 @@ public class GcmIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setSmallIcon(R.drawable.action_icon)
-                        .setContentTitle("Pass")
+                        .setContentTitle("FlippIt")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setTicker("Copied to clipboard")
@@ -186,7 +186,7 @@ public class GcmIntentService extends IntentService {
     private void fileNotification(final String fileName, String msg, String msgId) {
         Log.i(MyActivity.TAG, getClass().getName() + ": " + "File transfer.");
 
-        mBuilder.setContentTitle("Pass")
+        mBuilder.setContentTitle("FlippIt")
                 .setContentText("Downloading...")
                 .setSmallIcon(R.drawable.action_icon);
         String email = mPrefs.getString("email", "");

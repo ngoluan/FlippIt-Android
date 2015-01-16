@@ -150,6 +150,7 @@ public class SendActivity extends Activity {
         JSONArray devices = getStoredDevices();
         Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Creating coverflow. Devices: " + devices.length());
         if (devices.length() <= 1 && getDeviceAttempted != true) {
+            Toast.makeText(mContext, "Get the Chrome app from getchrome.flippit.ca, and then press the refresh (top right hand corner).", Toast.LENGTH_LONG).show();
             getDevices();
             return;
         }

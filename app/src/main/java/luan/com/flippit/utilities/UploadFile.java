@@ -58,7 +58,7 @@ public class UploadFile implements Runnable {
         mNotificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
         mBuilder = new NotificationCompat.Builder(context);
-        mBuilder.setContentTitle("Pass")
+        mBuilder.setContentTitle("FlippIt")
                 .setContentText("Sending...")
                 .setSmallIcon(R.drawable.action_icon);
     }

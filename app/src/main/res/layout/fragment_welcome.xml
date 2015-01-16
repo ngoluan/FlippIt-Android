@@ -83,27 +83,17 @@
             android:layout_marginTop="20dp">
 
             <Button
-                android:id="@+id/welcomeTextTutorial"
-                android:layout_width="100dp"
+                android:id="@+id/getStarted"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/rounded_white"
-                android:text="Text Share Tutorial"
-                android:textColor="@color/dark_grey"
-                android:textSize="16dp" />
-
-            <Button
-                android:id="@+id/welcomeFileTutorial"
-                android:layout_width="100dp"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:background="@drawable/rounded_white"
-                android:text="File Share Tutorial"
+                android:text="Get Started Tutorial"
                 android:textColor="@color/dark_grey"
                 android:textSize="16dp" />
 
             <Button
                 android:id="@+id/welcomeContinue"
-                android:layout_width="100dp"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:background="@drawable/rounded_white"

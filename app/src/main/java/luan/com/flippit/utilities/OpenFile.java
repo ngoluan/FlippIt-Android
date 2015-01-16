@@ -40,7 +40,7 @@ public class OpenFile {
         if (!file.exists()) {
             Log.i(MyActivity.TAG, getClass().getName() + ": " + "File transfer.");
 
-            mBuilder.setContentTitle("Pass")
+            mBuilder.setContentTitle("FlippIt")
                     .setContentText("Downloading...")
                     .setSmallIcon(R.drawable.action_icon);
 
@@ -61,7 +61,7 @@ public class OpenFile {
         intentOpen.setDataAndType(hacked_uri, mimeType);
 
         intentOpen.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Intent new_intent = Intent.createChooser(intentOpen, "Pass");
+        Intent new_intent = Intent.createChooser(intentOpen, "FlippIt");
         new_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mContext.getApplicationContext().startActivity(new_intent);
     }

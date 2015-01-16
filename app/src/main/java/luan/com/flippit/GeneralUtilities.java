@@ -196,7 +196,7 @@ public class GeneralUtilities {
     public static NotificationCompat.Builder createNotificationBuilder(Context context) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
         mBuilder.setSmallIcon(R.drawable.notification_icon)
-                .setContentTitle("Pass");
+                .setContentTitle("FlippIt");
         return mBuilder;
     }
 
