@@ -36,8 +36,9 @@ import java.util.List;
 
 import luan.com.flippit.utilities.GetFolderSize;
 import luan.com.flippit.utilities.HistoryGetCallbackInterface;
+import luan.com.flippit.utilities.HistoryInterface;
 import luan.com.flippit.utilities.OnTaskCompleted;
-import luan.com.flippit.utilities.UpdateHistoryListview;
+import luan.com.flippit.utilities.UpdateHistoryListview_v2;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,6 +46,7 @@ import luan.com.flippit.utilities.UpdateHistoryListview;
 public class HistoryFragment extends Fragment {
     static public CustomHistoryAdapter customHistoryAdapter = null;
     static public Boolean flagLoading = false;
+    static public Boolean flagSearch = false;
     static public int totalLoad = 20;
     static public int lastHistoryTotal = 99;
     static ArrayList<HistoryItem> historyItems = new ArrayList<HistoryItem>();
@@ -58,8 +60,11 @@ public class HistoryFragment extends Fragment {
 
     static public void createListView(final int totalLoad) {
         String email = MyActivity.mPrefs.getString("email", "");
-        HistoryGetCallback historyCallBack = new HistoryGetCallback();
-        new UpdateHistoryListview(totalLoad, email, progressBar, null, historyCallBack, null);
+
+        GetDataCallback getDataCallback = new GetDataCallback(MyActivity.mContext);
+        progressBar.setIndeterminate(true);
+        UpdateHistoryListview_v2 updateHistoryListview = new UpdateHistoryListview_v2(getDataCallback);
+        updateHistoryListview.updateListview(totalLoad, email, "", MyActivity.mContext);
     }
 
 
@@ -161,7 +166,7 @@ public class HistoryFragment extends Fragment {
                                  int visibleItemCount, int totalItemCount) {
 
                 if (firstVisibleItem + visibleItemCount == totalItemCount && totalItemCount > 1) {
-                    if (flagLoading == false) {
+                    if (flagLoading == false && flagSearch == false) {
                         if (lastHistoryTotal == historyItems.size()) {
                             return;
                         }
@@ -227,6 +232,32 @@ public class HistoryFragment extends Fragment {
         public void callBack(int i) {
             HistoryFragment.historyItems.remove(i);
             HistoryFragment.animateDelete();
+        }
+    }
+
+    public static class GetDataCallback extends HistoryInterface {
+
+        public GetDataCallback(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void callBackProgress(int progress) {
+
+        }
+
+        @Override
+        public void callBackFinish(Bundle extras) {
+
+        }
+
+        @Override
+        public void callBackFinish(ArrayList<HistoryItem> historyItems) {
+            HistoryFragment.flagLoading = false;
+            HistoryFragment.historyItems = historyItems;
+            HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
+            progressBar.setIndeterminate(false);
+            Log.i(MyActivity.TAG, MyActivity.mContext.getClass().getName() + ": " + "Received items: " + String.valueOf(historyItems.size()));
         }
     }
 }

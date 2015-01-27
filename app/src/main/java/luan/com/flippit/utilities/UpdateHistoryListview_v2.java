@@ -31,7 +31,7 @@ public class UpdateHistoryListview_v2 {
         this.callback = callback;
     }
 
-    public static void updateListview(final int totalLoad, final String email, final Context mContext) {
+    public static void updateListview(final int totalLoad, final String email, final String search, final Context mContext) {
 /*        if (progressBar != null) {
             progressBar.setIndeterminate(true);
         }*/
@@ -56,6 +56,7 @@ public class UpdateHistoryListview_v2 {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
                     nameValuePairs.add(new BasicNameValuePair("email", email));
+                    nameValuePairs.add(new BasicNameValuePair("search", search));
                     nameValuePairs.add(new BasicNameValuePair("total", String.valueOf(totalLoad)));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 

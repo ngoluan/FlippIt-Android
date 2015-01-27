@@ -72,7 +72,7 @@ ADDED from AndroidManifest.xml:24:9
 	android:name
 		ADDED from AndroidManifest.xml:25:13
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:27:9
+ADDED from AndroidManifest.xml:27:13
 action#android.intent.action.MAIN
 ADDED from AndroidManifest.xml:28:17
 	android:name
@@ -88,7 +88,7 @@ ADDED from AndroidManifest.xml:34:9
 	android:name
 		ADDED from AndroidManifest.xml:35:13
 intent-filter#com.google.android.c2dm.intent.RECEIVE+luan.com.pass
-ADDED from AndroidManifest.xml:37:9
+ADDED from AndroidManifest.xml:37:13
 action#com.google.android.c2dm.intent.RECEIVE
 ADDED from AndroidManifest.xml:38:17
 	android:name
@@ -116,7 +116,7 @@ ADDED from AndroidManifest.xml:50:9
 	android:name
 		ADDED from AndroidManifest.xml:51:13
 intent-filter#android.intent.action.SEND+android.intent.category.DEFAULT
-ADDED from AndroidManifest.xml:54:9
+ADDED from AndroidManifest.xml:54:13
 action#android.intent.action.SEND
 ADDED from AndroidManifest.xml:55:17
 	android:name
@@ -144,7 +144,7 @@ ADDED from AndroidManifest.xml:66:9
 	android:name
 		ADDED from AndroidManifest.xml:67:13
 intent-filter#android.intent.action.GET_CONTENT+android.intent.category.DEFAULT+android.intent.category.OPENABLE
-ADDED from AndroidManifest.xml:73:9
+ADDED from AndroidManifest.xml:73:13
 action#android.intent.action.GET_CONTENT
 ADDED from AndroidManifest.xml:74:17
 	android:name
@@ -158,7 +158,7 @@ ADDED from AndroidManifest.xml:83:9
 	android:name
 		ADDED from AndroidManifest.xml:83:19
 intent-filter#android.appwidget.action.APPWIDGET_UPDATE
-ADDED from AndroidManifest.xml:84:9
+ADDED from AndroidManifest.xml:84:13
 action#android.appwidget.action.APPWIDGET_UPDATE
 ADDED from AndroidManifest.xml:85:17
 	android:name
@@ -191,6 +191,20 @@ ADDED from AndroidManifest.xml:100:9
 		ADDED from AndroidManifest.xml:102:13
 	android:name
 		ADDED from AndroidManifest.xml:101:13
+activity#luan.com.flippit.WelcomeActivity
+ADDED from AndroidManifest.xml:105:9
+	android:label
+		ADDED from AndroidManifest.xml:107:13
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:108:13
+	android:name
+		ADDED from AndroidManifest.xml:106:13
+meta-data#android.support.PARENT_ACTIVITY
+ADDED from AndroidManifest.xml:109:13
+	android:name
+		ADDED from AndroidManifest.xml:110:17
+	android:value
+		ADDED from AndroidManifest.xml:111:17
 uses-sdk
 INJECTED from AndroidManifest.xml:0:0 reason: use-sdk injection requested
 MERGED from com.android.support:appcompat-v7:21.0.2:15:5

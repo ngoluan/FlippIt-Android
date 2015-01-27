@@ -9,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -37,6 +38,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import luan.com.flippit.utilities.Callback;
 import luan.com.flippit.utilities.DecodeSampledBitmapFromPath;
 
 /**
@@ -285,6 +287,53 @@ public class GeneralUtilities {
             @Override
             protected void onPostExecute(String msg) {
 
+            }
+        }.execute();
+    }
+
+    public static void getDevices(final String email, final Callback callback) {
+        new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... params) {
+                // TODO Auto-generated method stub
+                String result = postData();
+                return result;
+            }
+
+            public String postData() {
+                String line = "";
+                BufferedReader in = null;
+
+                HttpClient httpclient = new DefaultHttpClient();
+                HttpPost httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/getDevices_v1.php");
+
+                try {
+
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+
+                    nameValuePairs.add(new BasicNameValuePair("email", email));
+                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+                    HttpResponse response = httpclient.execute(httppost);
+
+                    in = new BufferedReader(new InputStreamReader(
+                            response.getEntity().getContent()));
+
+                    line = in.readLine();
+
+                } catch (ClientProtocolException e) {
+                    // TODO Auto-generated catch block
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                }
+                return line;
+            }
+
+            @Override
+            protected void onPostExecute(String msg) {
+                Bundle extras = new Bundle();
+                extras.putString("msg", msg);
+                callback.callBackFinish(extras);
             }
         }.execute();
     }

@@ -30,6 +30,7 @@ import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,11 +38,13 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 import luan.com.flippit.utilities.Callback;
 import luan.com.flippit.utilities.CopyClipboard;
 import luan.com.flippit.utilities.CopyService;
 import luan.com.flippit.utilities.FileCallback;
+import luan.com.flippit.utilities.HistoryInterface;
 
 /**
  * This {@code IntentService} does the actual handling of the GCM message.
@@ -117,10 +120,11 @@ public class GcmIntentService extends IntentService {
             } else {
                 String extraUrl = searchForExtra(msg);
 
-                Log.i(MyActivity.TAG, getClass().getName() + ": " + "extraUrl:" + extraUrl);
                 if (!extraUrl.equals("")) {
                     String extraType = extraMIMEOnline(extraUrl);
                     extraDialog(msg, extraUrl, extraType);
+                } else if (msg.contains("newDevice") == true) {
+                    newDevice(msg);
                 } else {
                     textNotification(msg);
                 }
@@ -131,8 +135,6 @@ public class GcmIntentService extends IntentService {
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-
-
     }
 
     private void extraDialog(String msg, String extraFilename, String extraType) {
@@ -247,5 +249,61 @@ public class GcmIntentService extends IntentService {
         return contentType;
     }
 
+    private void newDevice(String msg) {
+        String email = mPrefs.getString("email", "");
+        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "New device detected");
+
+        Callback deviceCallback = new IntentDeviceCallback(mContext);
+        GeneralUtilities.getDevices(email, deviceCallback);
+    }
+
+    public class IntentDeviceCallback extends HistoryInterface {
+
+        public IntentDeviceCallback(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void callBackProgress(int progress) {
+
+        }
+
+        @Override
+        public void callBackFinish(Bundle extras) {
+            String msg = extras.getString("msg");
+            String regID = mPrefs.getString("registration_id", "");
+            ArrayList<DeviceItem> deviceItems = new ArrayList<DeviceItem>();
+            try {
+                JSONArray devices = new JSONArray(msg);
+                deviceItems.clear();
+                for (int i = 0; i < devices.length(); i++) {
+                    JSONObject device = devices.getJSONObject(i);
+                    if (!device.getString("targetID").equals(regID)) {
+                        deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
+                    }
+                }
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putString("targetDevices", devices.toString());
+                editor.commit();
+
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(mContext)
+                                .setSmallIcon(R.drawable.action_icon)
+                                .setContentTitle("FlippIt")
+                                .setTicker("New device registered")
+                                .setContentText("New device registered.");
+                mNotificationManager.cancel(1);
+                mNotificationManager.notify(1, mBuilder.build());
+                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Device added.");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void callBackFinish(ArrayList<HistoryItem> historyItems) {
+
+        }
+    }
 }
 

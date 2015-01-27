@@ -107,11 +107,11 @@ public class WidgetProvider extends AppWidgetProvider {
         }
     }
 
-    public static void getData(int [] localAppWidgetIds) {
+    public static void getData(int[] localAppWidgetIds) {
         Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Getting data. WidgetID " + localAppWidgetIds[0]);
         getDataCallback = new GetDataCallback(mContext, localAppWidgetIds);
         updateHistoryListview = new UpdateHistoryListview_v2(getDataCallback);
-        updateHistoryListview.updateListview(10, email, mContext);
+        updateHistoryListview.updateListview(10, email, "", mContext);
     }
 
     @Override

@@ -53,7 +53,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import at.technikum.mti.fancycoverflow.FancyCoverFlow;
+import luan.com.flippit.utilities.Callback;
 import luan.com.flippit.utilities.DecodeSampledBitmapFromPath;
+import luan.com.flippit.utilities.HistoryInterface;
 import luan.com.flippit.utilities.OnTaskCompleted;
 import luan.com.flippit.utilities.UploadFile;
 
@@ -84,65 +86,8 @@ public class SendActivity extends Activity {
 
     static public void getDevices() {
         getDeviceAttempted = true;
-        new AsyncTask<String, Integer, String>() {
-            @Override
-            protected String doInBackground(String... params) {
-                // TODO Auto-generated method stub
-                String result = postData();
-                return result;
-            }
-
-            public String postData() {
-                String line = "";
-                BufferedReader in = null;
-
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpPost httppost = new HttpPost(GeneralUtilities.SERVER_PATH + "server/getDevices_v1.php");
-
-                try {
-
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-
-                    nameValuePairs.add(new BasicNameValuePair("email", email));
-                    httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                    HttpResponse response = httpclient.execute(httppost);
-
-                    in = new BufferedReader(new InputStreamReader(
-                            response.getEntity().getContent()));
-
-                    line = in.readLine();
-
-                } catch (ClientProtocolException e) {
-                    // TODO Auto-generated catch block
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                }
-                return line;
-            }
-
-            @Override
-            protected void onPostExecute(String msg) {
-
-                try {
-                    JSONArray devices = new JSONArray(msg);
-                    deviceItems.clear();
-                    for (int i = 0; i < devices.length(); i++) {
-                        JSONObject device = devices.getJSONObject(i);
-                        if (!device.getString("targetID").equals(regID)) {
-                            deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
-                        }
-                    }
-                    SharedPreferences.Editor editor = mPrefs.edit();
-                    editor.putString("targetDevices", devices.toString());
-                    editor.commit();
-
-                    createCoverFlow();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        }.execute();
+        Callback deviceCallback = new DeviceCallback(mContext);
+        GeneralUtilities.getDevices(email, deviceCallback);
     }
 
     static void createCoverFlow() {
@@ -410,7 +355,7 @@ public class SendActivity extends Activity {
 
     static void deleteDevice(int position, final String email) {
         final String targetID = deviceItems.get(position).targetID;
-
+        Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Delete device target: " + targetID);
         new AsyncTask<String, Integer, String>() {
             @Override
             protected String doInBackground(String... params) {
@@ -431,7 +376,7 @@ public class SendActivity extends Activity {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 
                     nameValuePairs.add(new BasicNameValuePair("email", email));
-                    nameValuePairs.add(new BasicNameValuePair("targetID", SendActivity.targetID));
+                    nameValuePairs.add(new BasicNameValuePair("targetID", targetID));
                     httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 
                     HttpResponse response = httpclient.execute(httppost);
@@ -451,6 +396,7 @@ public class SendActivity extends Activity {
 
             @Override
             protected void onPostExecute(String msg) {
+                Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Delete device query: " + msg);
                 getDevices();
             }
         }.execute();
@@ -606,6 +552,45 @@ public class SendActivity extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static class DeviceCallback extends HistoryInterface {
+
+        public DeviceCallback(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void callBackProgress(int progress) {
+
+        }
+
+        @Override
+        public void callBackFinish(Bundle extras) {
+            String msg = extras.getString("msg");
+            try {
+                JSONArray devices = new JSONArray(msg);
+                deviceItems.clear();
+                for (int i = 0; i < devices.length(); i++) {
+                    JSONObject device = devices.getJSONObject(i);
+                    if (!device.getString("targetID").equals(regID)) {
+                        deviceItems.add(new DeviceItem(device.getString("name"), device.getString("type"), device.getString("targetID")));
+                    }
+                }
+                SharedPreferences.Editor editor = mPrefs.edit();
+                editor.putString("targetDevices", devices.toString());
+                editor.commit();
+
+                createCoverFlow();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void callBackFinish(ArrayList<HistoryItem> historyItems) {
+
+        }
     }
 }
 

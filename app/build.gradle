@@ -8,8 +8,8 @@ android {
         applicationId "luan.com.flippit"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 3
-        versionName "1.21"
+        versionCode 4
+        versionName "1.22"
     }
     buildTypes {
         release {

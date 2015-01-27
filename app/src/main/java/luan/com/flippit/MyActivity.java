@@ -9,7 +9,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+
+import luan.com.flippit.utilities.UpdateHistoryListview_v2;
 
 
 public class MyActivity extends ActionBarActivity {
@@ -68,7 +72,7 @@ public class MyActivity extends ActionBarActivity {
             gcm = GoogleCloudMessaging.getInstance(this);
 
             regid = getRegistrationId(mContext);
-            Log.i(MyActivity.TAG, getClass().getName() + ": " + "RegID: " + regid);
+
             if (regid.isEmpty() || regid.equals("")) {
                 registerInBackground();
             }
@@ -99,6 +103,37 @@ public class MyActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.my, menu);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                String text = searchView.getQuery().toString();
+                if (text.length() > 2) {
+                    Log.i(GeneralUtilities.TAG, MyActivity.mContext.getClass().getName() + ": " + text);
+                    HistoryFragment.flagSearch = true;
+                    HistoryFragment.GetDataCallback getDataCallback = new HistoryFragment.GetDataCallback(MyActivity.mContext);
+                    HistoryFragment.progressBar.setIndeterminate(true);
+                    UpdateHistoryListview_v2 updateHistoryListview = new UpdateHistoryListview_v2(getDataCallback);
+                    updateHistoryListview.updateListview(20, email, text, MyActivity.mContext);
+                }
+                return false;
+            }
+        });
+
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                HistoryFragment.flagSearch = true;
+                return false;
+            }
+        });
+
         return true;
     }
 

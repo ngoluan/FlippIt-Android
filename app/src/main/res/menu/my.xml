@@ -29,4 +29,10 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="Logout" />
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/search_white"
+        android:title="Search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always|collapseActionView" />
 </menu>
