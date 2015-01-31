@@ -65,7 +65,7 @@ public class WidgetProvider extends AppWidgetProvider {
         if (views == null) {
             views = new RemoteViews(mContext.getPackageName(), R.layout.widget_layout);
         }
-
+        mAppWidgetManager = AppWidgetManager.getInstance(mContext);
         for (int i = 0; i < N; i++) {
             appWidgetId = localMAppWidgetIds[i];
 

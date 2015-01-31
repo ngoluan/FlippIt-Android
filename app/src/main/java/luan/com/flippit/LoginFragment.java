@@ -132,7 +132,7 @@ public class LoginFragment extends Fragment {
                         storeEmail(email);
                         Toast.makeText(MyActivity.mContext, result.getString("message"), Toast.LENGTH_LONG).show();
                         MyActivity.mFragmentManager.beginTransaction()
-                                .replace(R.id.container, new WelcomeFragment())
+                                .replace(R.id.container, new Welcome1Fragment())
                                 .commit();
                     } else {
                         Toast.makeText(MyActivity.mContext, result.getString("error"), Toast.LENGTH_SHORT).show();

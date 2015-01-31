@@ -8,8 +8,8 @@ android {
         applicationId "luan.com.flippit"
         minSdkVersion 14
         targetSdkVersion 20
-        versionCode 4
-        versionName "1.22"
+        versionCode 5
+        versionName "1.23"
     }
     buildTypes {
         release {
@@ -43,5 +43,5 @@ dependencies {
     compile project(':aFileChooser')
     compile files('lib/httpmime-4.3.6.jar')
     compile 'org.apache.httpcomponents:httpcore:4.3.3'
-
+    compile 'com.github.amlcurran.showcaseview:library:5.0.0'
 }

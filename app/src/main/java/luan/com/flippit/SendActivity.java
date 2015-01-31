@@ -17,6 +17,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -24,6 +25,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -95,7 +99,7 @@ public class SendActivity extends Activity {
         JSONArray devices = getStoredDevices();
         Log.i(MyActivity.TAG, mContext.getClass().getName() + ": " + "Creating coverflow. Devices: " + devices.length());
         if (devices.length() <= 1 && getDeviceAttempted != true) {
-            Toast.makeText(mContext, "Get the Chrome app from getchrome.flippit.ca, and then press the refresh (top right hand corner).", Toast.LENGTH_LONG).show();
+            Toast.makeText(mContext, "Get the Chrome app from getchrome.flippit.ca.", Toast.LENGTH_LONG).show();
             getDevices();
             return;
         }
@@ -490,9 +494,27 @@ public class SendActivity extends Activity {
                 editText.setText("");
             }
         });
-
+        ImageButton helpButton = (ImageButton) dialog.findViewById(R.id.helpDialog);
+        helpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showTutorial();
+            }
+        });
         setContentView(R.layout.activity_send);
         createCoverFlow();
+
+        SharedPreferences mPrefs = mContext.getSharedPreferences(mContext.getPackageName(),
+                Context.MODE_PRIVATE);
+
+        Boolean firstTimeSend = mPrefs.getBoolean("firstTimeSend", true);
+        if (firstTimeSend == true) {
+            showTutorial();
+            firstTimeSend = false;
+            SharedPreferences.Editor editor = mPrefs.edit();
+            editor.putBoolean("firstTimeSend", firstTimeSend);
+            editor.commit();
+        }
     }
 
     private void showChooser() {
@@ -535,6 +557,43 @@ public class SendActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
     }
 
+    public void showTutorial() {
+
+        final Handler h = new Handler();
+        h.postDelayed(new Runnable() {
+            private long time = 0;
+
+            @Override
+            public void run() {
+
+                Toast.makeText(mContext, "First, type your message or select file you would like to share.", Toast.LENGTH_LONG).show();
+                final Animation animation = new AlphaAnimation(1, 0); // Change alpha from fully visible to invisible
+                animation.setDuration(500); // duration - half a second
+                animation.setInterpolator(new LinearInterpolator()); // do not alter animation rate
+                animation.setRepeatCount(5); // Repeat animation infinitely
+                animation.setRepeatMode(Animation.REVERSE); // Reverse animation at the end so the button will fade back in
+
+                EditText editText = (EditText) dialog
+                        .findViewById(R.id.messageText);
+                editText.startAnimation(animation);
+
+
+                final Handler i = new Handler();
+                i.postDelayed(new Runnable() {
+                    private long time = 0;
+
+                    @Override
+                    public void run() {
+                        Toast.makeText(mContext, "Then, tap on a device to share with.", Toast.LENGTH_LONG).show();
+                        fancyCoverFlow.startAnimation(animation);
+                    }
+                }, 5000); // 1 second delay (takes millis)
+
+            }
+        }, 1500); // 1 second delay (takes millis)
+
+
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.

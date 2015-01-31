@@ -1,8 +1,10 @@
 package luan.com.flippit;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,6 +20,9 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -200,26 +205,29 @@ public class HistoryFragment extends Fragment {
                 MyActivity.mContext.startActivity(sendIntent);
             }
         });
+        showTutorial();
+
 
         return mView;
     }
 
-    public void animateUpdateListview() {
-
-    }
-
-    public static class HistoryGetCallback implements HistoryGetCallbackInterface {
-        @Override
-        public void callBack(ArrayList<HistoryItem> historyItems) {
-            HistoryFragment.flagLoading = false;
-            HistoryFragment.historyItems = historyItems;
-            HistoryFragment.customHistoryAdapter.updateEntries(historyItems);
+    public void showTutorial() {
+        SharedPreferences mPrefs = MyActivity.mContext.getSharedPreferences(MyActivity.mContext.getPackageName(),
+                Context.MODE_PRIVATE);
+        Boolean firstTimeHistory = mPrefs.getBoolean("firstTimeHistory", true);
+        if (firstTimeHistory == true) {
+            ShowcaseView sv = new ShowcaseView.Builder((Activity) MyActivity.mContext)
+                    .setTarget(new ViewTarget(mView.findViewById(R.id.sendButton)))
+                    .setContentTitle("Send Button")
+                    .setContentText("Press the Send button to send messages/files to devices or save frequently used messages for later use.")
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .build();
+            firstTimeHistory = false;
+            SharedPreferences.Editor editor = mPrefs.edit();
+            editor.putBoolean("firstTimeHistory", firstTimeHistory);
+            editor.commit();
         }
 
-        @Override
-        public void callBack(int i) {
-
-        }
     }
 
     public static class DeleteHistoryCallback implements HistoryGetCallbackInterface {

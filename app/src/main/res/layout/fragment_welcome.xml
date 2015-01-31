@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/base_blue"
-    tools:context="luan.com.flippit.WelcomeFragment">
+    tools:context="luan.com.flippit.Welcome1Fragment">
 
     <!-- TODO: Update blank fragment layout -->
 

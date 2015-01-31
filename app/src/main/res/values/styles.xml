@@ -32,4 +32,11 @@
         </item>
     </style>
 
+    <style name="CustomShowcaseTheme" parent="ShowcaseView.Light">
+        <item name="sv_backgroundColor">#f1e8e8e8</item>
+        <item name="sv_showcaseColor">@color/dark_blue</item>
+        <item name="sv_buttonText">Done</item>
+        <item name="sv_tintButtonColor">false</item>
+
+    </style>
 </resources>
